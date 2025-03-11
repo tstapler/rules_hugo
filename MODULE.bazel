@@ -1,7 +1,7 @@
 module(name = "build_stack_rules_hugo")
 
 hugo = use_extension(
-    "@build_stack_rules_hugo//hugo/internal:extensions.bzl",
+    "@@build_stack_rules_hugo//hugo/internal:extensions.bzl",
     "hugo_extension",
 )
 
