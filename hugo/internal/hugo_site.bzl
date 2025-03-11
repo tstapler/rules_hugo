@@ -122,8 +122,6 @@ def _hugo_site_impl(ctx):
 
     if ctx.attr.quiet:
         hugo_args.append("--quiet")
-    if ctx.attr.verbose:
-        hugo_args.append("--verbose")
     if ctx.attr.base_url:
         hugo_args += ["--baseURL", ctx.attr.base_url]
     if ctx.attr.build_drafts:
