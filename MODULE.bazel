@@ -1,0 +1,34 @@
+module(name = "build_stack_rules_hugo")
+
+hugo = use_extension(
+    "@build_stack_rules_hugo//hugo/internal:extensions.bzl",
+    "hugo_extension",
+)
+
+hugo.hugo(
+    name = "hugo",
+    version = "0.101.0",
+    extended = True,
+)
+
+hugo.github_theme(
+    name = "com_github_alex_shpak_hugo_book",
+    owner = "alex-shpak",
+    repo = "hugo-book",
+    commit = "07048f7bf5097435a05c1e8b77241b0e478023c2",
+    sha256 = "2897befb721e2bde54bb8acb43887d84c2855956f8efad5bd761628fe7fe5339",
+)
+
+hugo.http_theme(
+    name = "com_github_thegeeklab_hugo_geekdoc",
+    url = "https://github.com/thegeeklab/hugo-geekdoc/releases/download/v0.34.2/hugo-geekdoc.tar.gz",
+    sha256 = "7fdd57f7d4450325a778629021c0fff5531dc8475de6c4ec70ab07e9484d400e",
+    build_file_content = """filegroup(name = "files", srcs = glob(["**"]), visibility = ["//visibility:public"])""",
+)
+
+use_repo(
+    hugo,
+    "hugo",
+    "com_github_alex_shpak_hugo_book",
+    "com_github_thegeeklab_hugo_geekdoc",
+)
