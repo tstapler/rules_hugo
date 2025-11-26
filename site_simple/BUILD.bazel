@@ -1,4 +1,4 @@
-load("@build_stack_rules_hugo//hugo:rules.bzl", "hugo_site", "hugo_theme", "hugo_serve")
+load("@build_stack_rules_hugo//hugo:rules.bzl", "hugo_site", "hugo_theme", "hugo_serve", "gzip_hugo_site", "hugo_site_files", "minify_hugo_site")
 
 hugo_theme(
     name = "book",
@@ -10,9 +10,9 @@ hugo_theme(
 hugo_site(
     name = "site_simple",
     config = "config.yaml",
-    content = glob(["content/**"]),
-    static = glob(["static/**"]),
-    layouts = glob(["layouts/**"]),
+    content = glob(["content/**"], allow_empty=True),
+    static = glob(["static/**"], allow_empty=True),
+    layouts = glob(["layouts/**"], allow_empty=True),
     theme = ":book",
 )
 
@@ -25,4 +25,25 @@ sh_test(
     name = "site_test",
     srcs = ["site_test.sh"],
     data = [":site_simple"],
+)
+
+# Example: Create gzipped versions of site files for nginx gzip_static
+gzip_hugo_site(
+    name = "site_simple_gz",
+    site = ":site_simple",
+    extensions = ["html", "css", "js", "xml", "json"],
+    compression_level = 9,
+)
+
+# Example: Get file manifest for easier downstream processing
+hugo_site_files(
+    name = "site_simple_files",
+    site = ":site_simple",
+)
+
+# Example: Minify HTML/CSS/JS files for production deployment
+minify_hugo_site(
+    name = "site_simple_minified",
+    site = ":site_simple",
+    extensions = ["html", "css", "js", "xml", "json"],
 )
