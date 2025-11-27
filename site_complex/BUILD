@@ -24,9 +24,9 @@ hugo_theme(
 
 hugo_site(
     name = "site_complex",
-    config_dir = glob(["config/**"]),
-    content = glob(["content/**"]),
-    data = glob(["data/**"]),
+    config_dir = glob(["config/**"], allow_empty = True),
+    content = glob(["content/**"], allow_empty = True),
+    data = glob(["data/**"], allow_empty = True),
     quiet = False,
     theme = ":hugo_theme_geekdoc",
     verbose = True,
