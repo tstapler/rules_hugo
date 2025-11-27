@@ -1,4 +1,5 @@
 load("//hugo:internal/hugo_theme.bzl", "HugoThemeInfo")
+load("//hugo:internal/hugo_site_info.bzl", "HugoSiteInfo")
 
 def relative_path(src, dirname):
     """Given a src File and a directory it's under, return the relative path.
@@ -151,10 +152,21 @@ def _hugo_site_impl(ctx):
     files = depset([hugo_outputdir])
     runfiles = ctx.runfiles(files = [hugo_outputdir] + hugo_inputs)
 
-    return [DefaultInfo(
+    # Create HugoSiteInfo provider for easier downstream consumption
+    site_info = HugoSiteInfo(
+        output_dir = hugo_outputdir,
         files = files,
-        runfiles = runfiles,
-    )]
+        base_url = ctx.attr.base_url if ctx.attr.base_url else "",
+        name = ctx.label.name,
+    )
+
+    return [
+        DefaultInfo(
+            files = files,
+            runfiles = runfiles,
+        ),
+        site_info,
+    ]
 
 hugo_site = rule(
     attrs = {
