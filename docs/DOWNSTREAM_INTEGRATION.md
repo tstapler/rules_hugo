@@ -79,7 +79,96 @@ gzip_hugo_site(
 - Configurable file types and compression level
 - Clean separation of concerns
 
-### 3. minify_hugo_site Rule
+### 3. brotli_hugo_site Rule
+
+Brotli compression provides 15-25% better compression than gzip and is supported by all modern browsers:
+
+```python
+load("@build_stack_rules_hugo//hugo:rules.bzl", "hugo_site", "brotli_hugo_site", "gzip_hugo_site")
+
+hugo_site(
+    name = "my_site",
+    config = "config.yaml",
+    content = glob(["content/**"]),
+)
+
+# Create .br versions for modern browsers
+brotli_hugo_site(
+    name = "my_site_br",
+    site = ":my_site",
+    extensions = ["html", "css", "js", "xml", "json"],
+    compression_quality = 11,  # 0-11, where 11 is maximum
+)
+
+# Also create .gz for older browsers
+gzip_hugo_site(
+    name = "my_site_gz",
+    site = ":my_site",
+)
+```
+
+**Benefits:**
+- **15-25% better compression** than gzip
+- Supported by all modern browsers (Chrome, Firefox, Safari, Edge)
+- Fast decompression
+- Quality levels 0-11 (vs gzip's 1-9)
+
+**Deployment Strategy:**
+
+Serve both brotli and gzip for maximum compatibility:
+
+```nginx
+# nginx configuration
+server {
+    listen 80;
+    root /usr/share/nginx/html;
+
+    # Try brotli first, fallback to gzip, then original
+    location / {
+        try_files $uri.br $uri.gz $uri =404;
+
+        # Set correct content-type and encoding
+        if ($request_filename ~* \.br$) {
+            add_header Content-Encoding br;
+        }
+        if ($request_filename ~* \.gz$) {
+            add_header Content-Encoding gzip;
+        }
+    }
+
+    # Enable brotli_static module (if available)
+    brotli_static on;
+    gzip_static on;
+}
+```
+
+**Packaging for deployment:**
+
+```python
+# Package both compression formats
+pkg_tar(
+    name = "static_assets",
+    srcs = [":my_site"],
+    package_dir = "/usr/share/nginx/html",
+)
+
+pkg_tar(
+    name = "static_assets_compressed",
+    srcs = [":my_site_br", ":my_site_gz"],
+    package_dir = "/usr/share/nginx/html",
+)
+
+oci_image(
+    name = "nginx_image",
+    base = "@nginx_base",
+    tars = [
+        ":static_assets",
+        ":static_assets_compressed",
+    ],
+)
+```
+
+### 4. minify_hugo_site Rule
 
 Minifies HTML, CSS, JavaScript, XML, and JSON files to reduce file sizes for production deployment:
 
@@ -150,7 +239,7 @@ pkg_tar(
 
 **Note:** For advanced minification with more aggressive optimization, consider using Hugo's built-in `--minify` flag or integrating dedicated minification tools via rules_js.
 
-### 4. hugo_site_files Rule
+### 5. hugo_site_files Rule
 
 A utility for getting a manifest of all generated files:
 
@@ -191,7 +280,7 @@ genrule(
 - Consistent file ordering (sorted)
 - Better error messages
 
-### 5. process_hugo_site Rule
+### 6. process_hugo_site Rule
 
 A generic processor for applying custom transformations:
 
@@ -401,6 +490,17 @@ gzip_hugo_site(
     site = "...",                    # hugo_site target (required)
     extensions = [...],              # File extensions to gzip (default: ["html", "css", "js", "xml", "json", "txt"])
     compression_level = 9,           # 1-9, where 9 is max (default: 9)
+)
+```
+
+### brotli_hugo_site
+
+```python
+brotli_hugo_site(
+    name = "...",
+    site = "...",                    # hugo_site target (required)
+    extensions = [...],              # File extensions to compress (default: ["html", "css", "js", "xml", "json", "txt", "svg"])
+    compression_quality = 11,        # 0-11, where 11 is max (default: 11)
 )
 ```
 

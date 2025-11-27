@@ -5,6 +5,7 @@ load("//hugo:internal/github_hugo_theme.bzl", _github_hugo_theme = "github_hugo_
 load("//hugo:internal/hugo_site_info.bzl", _HugoSiteInfo = "HugoSiteInfo")
 load("//hugo:internal/hugo_site_files.bzl", _hugo_site_files = "hugo_site_files", _process_hugo_site = "process_hugo_site")
 load("//hugo:internal/hugo_site_gzip.bzl", _gzip_hugo_site = "gzip_hugo_site")
+load("//hugo:internal/hugo_site_brotli.bzl", _brotli_hugo_site = "brotli_hugo_site")
 load("//hugo:internal/hugo_site_minify.bzl", _minify_hugo_site = "minify_hugo_site")
 
 # Core rules
@@ -21,4 +22,5 @@ HugoSiteInfo = _HugoSiteInfo
 hugo_site_files = _hugo_site_files
 process_hugo_site = _process_hugo_site
 gzip_hugo_site = _gzip_hugo_site
+brotli_hugo_site = _brotli_hugo_site
 minify_hugo_site = _minify_hugo_site
