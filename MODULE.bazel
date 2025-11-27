@@ -7,7 +7,7 @@ hugo = use_extension(
 
 hugo.hugo(
     name = "hugo",
-    version = "0.101.0",
+    version = "0.145.0",
     extended = True,
 )
 
