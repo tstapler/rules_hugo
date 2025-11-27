@@ -16,10 +16,9 @@ def _minify_hugo_site_impl(ctx):
 
     # Build file extensions pattern
     extensions = ctx.attr.extensions
-    find_expr = " -o ".join(['-name "*.{}"'.format(ext) for ext in extensions])
 
-    # Create the minification script
-    # NOTE: Task 1.1 creates skeleton only - full minification logic comes in Task 1.2
+    # Create inline minification script
+    # Note: {{ and }} are escaped as {{{{ and }}}} in format strings
     script_content = """#!/bin/bash
 set -euo pipefail
 
@@ -28,26 +27,80 @@ OUTPUT_DIR="{output_dir}"
 
 echo "Minifying files from $SITE_DIR to $OUTPUT_DIR"
 
-# Create output directory structure
-mkdir -p "$OUTPUT_DIR"
+# Copy entire directory structure first, dereferencing symlinks
+cp -rL "$SITE_DIR/." "$OUTPUT_DIR/"
 
-# Copy entire directory structure first (Task 1.1: skeleton)
-# Task 1.2 will add actual minification logic
-cp -r "$SITE_DIR/." "$OUTPUT_DIR/"
+# Minification functions
+minify_html() {{
+    local file="$1"
+    sed -i -e 's/<!--[^>]*-->//g' \\
+           -e 's/[[:space:]]\\+/ /g' \\
+           -e 's/^[[:space:]]*//g' \\
+           -e 's/[[:space:]]*$//g' \\
+           -e '/^$/d' "$file"
+}}
 
-# Find matching files for processing
-cd "$SITE_DIR"
-TOTAL=0
-find . -type f \\( {find_expr} \\) | while read -r file; do
-    echo "Found for minification: $file"
-    TOTAL=$((TOTAL + 1))
+minify_css() {{
+    local file="$1"
+    # Remove CSS comments and extra whitespace
+    sed -i -e 's|/\\*[^*]*\\*\\+\\([^/*][^*]*\\*\\+\\)*/||g' \\
+           -e 's/^[[:space:]]*//g' \\
+           -e 's/[[:space:]]*$//g' \\
+           -e 's/[[:space:]]*:[[:space:]]*/:/g' \\
+           -e 's/[[:space:]]*;[[:space:]]*/;/g' \\
+           -e 's/[[:space:]]*,[[:space:]]*/, /g' \\
+           -e '/^$/d' "$file"
+}}
+
+minify_js() {{
+    local file="$1"
+    sed -i -e 's|//.*$||g' \\
+           -e 's|/\\*[^*]*\\*\\+\\([^/*][^*]*\\*\\+\\)*/||g' \\
+           -e 's/^[[:space:]]*//g' \\
+           -e 's/[[:space:]]*$//g' \\
+           -e '/^$/d' "$file"
+}}
+
+minify_xml() {{
+    local file="$1"
+    sed -i -e 's/<!--[^>]*-->//g' \\
+           -e 's/^[[:space:]]*//g' \\
+           -e 's/[[:space:]]*$//g' \\
+           -e '/^$/d' "$file"
+}}
+
+minify_json() {{
+    local file="$1"
+    if command -v jq >/dev/null 2>&1; then
+        jq -c . "$file" > "$file.tmp" && mv "$file.tmp" "$file"
+    else
+        sed -i -e 's/^[[:space:]]*//g' -e 's/[[:space:]]*$//g' -e '/^$/d' "$file"
+    fi
+}}
+
+# Process each extension
+cd "$OUTPUT_DIR"
+total_files=0
+
+for ext in {extensions}; do
+    find . -type f -name "*.$ext" | while read -r file; do
+        case "$ext" in
+            html|htm) minify_html "$file" ;;
+            css) minify_css "$file" ;;
+            js) minify_js "$file" ;;
+            xml) minify_xml "$file" ;;
+            json) minify_json "$file" ;;
+        esac
+        total_files=$((total_files + 1))
+        echo "Minified: $file"
+    done
 done
 
-echo "Ready to minify $TOTAL files (minification logic in Task 1.2)"
+echo "Minified $total_files files"
 """.format(
         site_dir = site_dir.path,
         output_dir = output.path,
-        find_expr = find_expr,
+        extensions = " ".join(extensions),
     )
 
     script = ctx.actions.declare_file(ctx.label.name + "_minify.sh")

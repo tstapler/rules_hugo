@@ -1,0 +1,45 @@
+"""
+Test integration of new hugo_site utilities.
+
+This demonstrates the improved downstream integration capabilities.
+"""
+
+load("@build_stack_rules_hugo//hugo:rules.bzl", "hugo_site", "gzip_hugo_site", "hugo_site_files")
+
+# Note: This is a test file to demonstrate the new APIs.
+# Uncomment and adapt when you have a working hugo_site target:
+
+# gzip_hugo_site(
+#     name = "my_site_gz",
+#     site = "//path/to:my_site",
+#     extensions = ["html", "css", "js", "xml", "json"],
+#     compression_level = 9,
+# )
+
+# hugo_site_files(
+#     name = "my_site_files",
+#     site = "//path/to:my_site",
+# )
+
+# Example genrule that uses hugo_site_files for easier access
+# genrule(
+#     name = "process_site",
+#     srcs = [":my_site_files"],
+#     outs = ["processed.tar"],
+#     cmd = """
+#         # Get the site directory (second location is the directory)
+#         SITE_DIR=$$(dirname $$(echo $(locations :my_site_files) | cut -d' ' -f2))
+#         # Get the manifest file (first location is the manifest)
+#         MANIFEST=$$(echo $(locations :my_site_files) | grep manifest.txt)
+#
+#         # Now you can easily iterate over files
+#         cd $$SITE_DIR
+#         while read file; do
+#             echo "Processing: $$file"
+#             # Your processing logic here
+#         done < $$MANIFEST
+#
+#         # Create output
+#         tar -czf $@ -C $$SITE_DIR .
+#     """,
+# )
