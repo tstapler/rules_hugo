@@ -26,6 +26,8 @@
 | -------------------: | :----------- |
 | [hugo_site](#hugo_site) | Declare a hugo site. |
 | [hugo_theme](#hugo_theme) | Declare a hugo theme. |
+| [minify_hugo_site](#minify_hugo_site) | Minify text files from a Hugo site. |
+| [brotli_hugo_site](#brotli_hugo_site) | Compress files with Brotli compression. |
 
 ## Usage
 
@@ -86,7 +88,7 @@ filegroup(
 ### Declare a hugo_site with a GitHub repository theme in your BUILD file
 
 ```python
-load("@build_stack_rules_hugo//hugo:rules.bzl", "hugo_site", "hugo_theme", "hugo_serve")
+load("@build_stack_rules_hugo//hugo:rules.bzl", "hugo_site", "hugo_theme", "hugo_serve", "minify_hugo_site", "brotli_hugo_site")
 
 # Declare a theme 'xmin'.  In this case the `name` and
 # `theme_name` are identical, so the `theme_name` could be omitted in this case.
@@ -122,6 +124,26 @@ hugo_serve(
 pkg_tar(
     name = "%s_tar" % my_site_name,
     srcs = [":%s" % my_site_name],
+)
+
+# Minify for production deployment
+# Compress with Brotli for modern browsers
+
+brotli_hugo_site(
+
+    name = "%s_br" % my_site_name,
+
+    site = ":%s" % my_site_name,
+
+    extensions = ["html", "css", "js", "xml", "json"],
+
+    compression_quality = 11,
+
+)
+minify_hugo_site(
+    name = "%s_minified" % my_site_name,
+    site = ":%s" % my_site_name,
+    extensions = ["html", "css", "js", "xml", "json"],
 )
 ```
 
