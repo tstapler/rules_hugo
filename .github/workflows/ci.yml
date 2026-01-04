@@ -29,7 +29,7 @@ jobs:
       with:
         node-version: '20'
         cache: 'npm'
-        cache-dependency-path: package-lock.json
+        cache-dependency-path: pnpm-lock.yaml
 
     - name: Install Node.js dependencies
       run: |
@@ -138,7 +138,7 @@ jobs:
 
     - name: Check for trailing whitespace
       run: |
-        if grep -r '[[:space:]]$' --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=bazel-* .; then
+        if grep -rI '[[:space:]]$' --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=bazel-* .; then
           echo "ERROR: Found trailing whitespace"
           exit 1
         fi
