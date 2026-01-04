@@ -65,23 +65,23 @@ jobs:
       run: bazel version
 
     - name: Check Bazel syntax and imports
-      run: bazel --enable_bzlmod build //hugo/...
+      run: bazel build //hugo/...
 
     - name: Build example sites
       run: |
-        bazel --enable_bzlmod build //site_simple:site_simple
-        bazel --enable_bzlmod build //site_simple:site_simple_minified
-        bazel --enable_bzlmod build //site_simple:site_simple_gz
-        bazel --enable_bzlmod build //site_simple:site_simple_br
+        bazel build //site_simple:site_simple
+        bazel build //site_simple:site_simple_minified
+        bazel build //site_simple:site_simple_gz
+        bazel build //site_simple:site_simple_br
 
     - name: Run Hugo site tests
-      run: bazel --enable_bzlmod test //site_simple:site_test
+      run: bazel test //site_simple:site_test
 
     - name: Run minification integration test
-      run: bazel --enable_bzlmod test //test_integration/minify:test_minify
+      run: bazel test //test_integration/minify:test_minify
 
     - name: Run brotli compression integration test
-      run: bazel --enable_bzlmod test //test_integration/brotli:test_brotli
+      run: bazel test //test_integration/brotli:test_brotli
 
     # Skip critical CSS for now - requires Node.js dependencies
     # - name: Run critical CSS integration test
