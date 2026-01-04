@@ -13,6 +13,11 @@ yarn-error.log*
 .idea/
 *.swp
 *.swo
+.aider*
+
+# AI Assistant
+.aider.chat.history.md
+.aider.input.history
 
 # OS
 .DS_Store
@@ -27,3 +32,8 @@ temp_*
 # Build artifacts
 dist/
 build/
+
+# Aider AI assistant
+.aider*
+**/aider.*
+*.aider
