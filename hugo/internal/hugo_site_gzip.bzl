@@ -1,6 +1,6 @@
 """Helper rule for gzipping Hugo site files."""
 
-load("//hugo:internal/hugo_site_info.bzl", "HugoSiteInfo")
+load("//hugo/internal:hugo_site_info.bzl", "HugoSiteInfo")
 
 def _gzip_hugo_site_impl(ctx):
     """Creates gzipped versions of compressible files in a Hugo site.

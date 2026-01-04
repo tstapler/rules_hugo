@@ -1,6 +1,6 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("//hugo:internal/github_hugo_theme.bzl", "github_hugo_theme")
-load("//hugo:internal/hugo_repository.bzl", "hugo_repository")
+load("//hugo/internal:github_hugo_theme.bzl", "github_hugo_theme")
+load("//hugo/internal:hugo_repository.bzl", "hugo_repository")
 
 def _hugo_extension_impl(ctx):
     for mod in ctx.modules:

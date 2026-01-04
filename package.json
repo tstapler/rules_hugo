@@ -1,0 +1,14 @@
+{
+  "name": "@build_stack/rules_hugo",
+  "version": "0.1.0",
+  "description": "Critical CSS and optimization tools for Hugo sites",
+  "private": true,
+  "dependencies": {
+    "beasties": "^0.3.5"
+  },
+  "devDependencies": {},
+  "packageManager": "pnpm@9.0.0",
+  "pnpm": {
+    "onlyBuiltDependencies": []
+  }
+}

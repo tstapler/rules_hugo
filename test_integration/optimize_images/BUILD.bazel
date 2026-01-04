@@ -1,0 +1,26 @@
+load("@build_stack_rules_hugo//hugo:rules.bzl", "hugo_site", "optimize_images_hugo_site")
+
+hugo_site(
+    name = "test_site",
+    config = "config.yaml",
+    content = glob(["content/**"]),
+    static = glob(["static/**"]),
+)
+
+# Test WebP generation only (faster)
+optimize_images_hugo_site(
+    name = "test_site_optimized",
+    site = ":test_site",
+    extensions = ["jpg", "jpeg", "png"],
+    webp_quality = 80,
+    generate_avif = False,  # Disable AVIF for faster testing
+)
+
+sh_test(
+    name = "test_optimize_images",
+    srcs = ["test_optimize_images.sh"],
+    data = [
+        ":test_site",
+        ":test_site_optimized",
+    ],
+)

@@ -1,4 +1,4 @@
-load("@build_stack_rules_hugo//hugo:rules.bzl", "hugo_site", "minify_hugo_site")
+load("@build_stack_rules_hugo//hugo:rules.bzl", "hugo_site", "minify_hugo_site", "brotli_hugo_site")
 
 hugo_site(
     name = "test_site",
@@ -9,6 +9,11 @@ hugo_site(
 
 minify_hugo_site(
     name = "test_site_minified",
+    site = ":test_site",
+)
+
+brotli_hugo_site(
+    name = "test_site_br",
     site = ":test_site",
 )
 

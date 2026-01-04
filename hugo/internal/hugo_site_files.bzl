@@ -1,6 +1,6 @@
 """Utilities for working with Hugo site files in downstream rules."""
 
-load("//hugo:internal/hugo_site_info.bzl", "HugoSiteInfo")
+load("//hugo/internal:hugo_site_info.bzl", "HugoSiteInfo")
 
 def _expand_hugo_site_impl(ctx):
     """Expands a Hugo site directory into individual file outputs.

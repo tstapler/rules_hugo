@@ -1,0 +1,11 @@
+/* Above the fold - critical */
+h1 {
+  color: #333;
+  font-size: 2rem;
+}
+
+/* Below the fold - not critical */
+footer {
+  color: #666;
+  margin-top: 100vh;
+}

@@ -1,5 +1,5 @@
-load("//hugo:internal/hugo_theme.bzl", "HugoThemeInfo")
-load("//hugo:internal/hugo_site_info.bzl", "HugoSiteInfo")
+load("//hugo/internal:hugo_theme.bzl", "HugoThemeInfo")
+load("//hugo/internal:hugo_site_info.bzl", "HugoSiteInfo")
 
 def relative_path(src, dirname):
     """Given a src File and a directory it's under, return the relative path.

@@ -1,6 +1,6 @@
 """Helper rule for brotli compression of Hugo site files."""
 
-load("//hugo:internal/hugo_site_info.bzl", "HugoSiteInfo")
+load("//hugo/internal:hugo_site_info.bzl", "HugoSiteInfo")
 
 def _brotli_hugo_site_impl(ctx):
     """Creates brotli-compressed versions of compressible files in a Hugo site.

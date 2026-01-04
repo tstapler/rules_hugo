@@ -1,0 +1,9 @@
+exports_files([
+    "hugo_site_minify.sh",
+])
+
+sh_binary(
+    name = "minify_script",
+    srcs = ["hugo_site_minify.sh"],
+    visibility = ["//visibility:public"],
+)
