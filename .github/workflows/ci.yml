@@ -33,7 +33,7 @@ jobs:
 
     - name: Install Node.js dependencies
       run: |
-        timeout 300 npm ci
+        timeout 300 pnpm install --frozen-lockfile
         echo "✅ Dependencies installed"
 
     - name: Set up Bazel
