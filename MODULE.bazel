@@ -1,7 +1,7 @@
 module(name = "build_stack_rules_hugo")
 
 # Common Bazel utilities
-bazel_dep(name = "bazel_skylib", version = "1.6.1")
+bazel_dep(name = "bazel_skylib", version = "1.6.1", repo_name = "bazel_skylib")
 bazel_dep(name = "platforms", version = "0.0.10")
 
 # Dependencies for image optimization
