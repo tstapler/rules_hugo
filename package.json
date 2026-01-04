@@ -6,7 +6,10 @@
   "dependencies": {
     "beasties": "^0.3.5"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@fullhuman/postcss-purgecss": "^6.0.0",
+    "postcss": "^8.4.35"
+  },
   "packageManager": "pnpm@9.0.0",
   "pnpm": {
     "onlyBuiltDependencies": []

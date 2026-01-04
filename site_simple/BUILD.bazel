@@ -1,4 +1,4 @@
-load("@build_stack_rules_hugo//hugo:rules.bzl", "hugo_site", "hugo_theme", "hugo_serve", "gzip_hugo_site", "hugo_site_files", "minify_hugo_site", "brotli_hugo_site")
+load("@build_stack_rules_hugo//hugo:rules.bzl", "hugo_site", "hugo_theme", "hugo_serve", "gzip_hugo_site", "hugo_site_files", "minify_hugo_site", "brotli_hugo_site", "purgecss_hugo_site")
 
 hugo_theme(
     name = "book",
@@ -41,6 +41,15 @@ brotli_hugo_site(
     site = ":site_simple",
     extensions = ["html", "css", "js", "xml", "json"],
     compression_quality = 11,
+)
+
+# Example: Remove unused CSS classes for smaller bundles
+purgecss_hugo_site(
+    name = "site_simple_purged",
+    site = ":site_simple",
+    content_glob = "**/*.html",
+    keyframes = True,
+    font_face = True,
 )
 
 # Example: Get file manifest for easier downstream processing

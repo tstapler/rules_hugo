@@ -9,6 +9,7 @@ load("//hugo/internal:hugo_site_brotli.bzl", _brotli_hugo_site = "brotli_hugo_si
 load("//hugo/internal:hugo_site_minify.bzl", _minify_hugo_site = "minify_hugo_site")
 load("//hugo/internal:hugo_site_optimize_images.bzl", _optimize_images_hugo_site = "optimize_images_hugo_site")
 load("//hugo/internal:hugo_site_critical_css.bzl", _critical_css_hugo_site = "critical_css_hugo_site")
+load("//hugo/internal:hugo_site_purgecss.bzl", _purgecss_hugo_site = "purgecss_hugo_site")
 
 # Core rules
 hugo_repository = _hugo_repository
@@ -28,3 +29,4 @@ brotli_hugo_site = _brotli_hugo_site
 minify_hugo_site = _minify_hugo_site
 optimize_images_hugo_site = _optimize_images_hugo_site
 critical_css_hugo_site = _critical_css_hugo_site
+purgecss_hugo_site = _purgecss_hugo_site

@@ -1,0 +1,65 @@
+/* Hero section styles */
+.hero {
+  background: #f0f0f0;
+  padding: 2rem;
+}
+
+.title {
+  color: #333;
+  font-size: 2rem;
+  margin: 0;
+}
+
+.description {
+  color: #666;
+  font-size: 1.2rem;
+}
+
+.btn-primary {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Content styles */
+.content {
+  margin: 2rem 0;
+}
+
+.text {
+  color: #333;
+  line-height: 1.6;
+}
+
+/* Unused classes that should be removed */
+.unused-class {
+  background: red;
+  color: white;
+}
+
+.another-unused {
+  font-size: 3rem;
+  text-decoration: underline;
+}
+
+.not-used-either {
+  border: 2px solid black;
+  padding: 1rem;
+}
+
+/* Keyframes that might be unused */
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.slide-animation {
+  animation: slideIn 0.3s ease-in;
+}

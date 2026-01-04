@@ -168,7 +168,53 @@ oci_image(
 )
 ```
 
-### 4. minify_hugo_site Rule
+### 4. purgecss_hugo_site Rule
+
+Removes unused CSS classes from Hugo site stylesheets for smaller bundle sizes:
+
+```python
+load("@build_stack_rules_hugo//hugo:rules.bzl", "hugo_site", "purgecss_hugo_site")
+
+hugo_site(
+    name = "my_site",
+    config = "config.yaml",
+    content = glob(["content/**"]),
+)
+
+purgecss_hugo_site(
+    name = "my_site_purged",
+    site = ":my_site",
+    content_glob = "**/*.html",  # Scan all HTML files for used classes
+    keyframes = True,             # Preserve unused keyframes
+    font_face = True,             # Preserve unused font faces
+)
+```
+
+**Benefits:**
+- **20-60% CSS size reduction** by removing unused classes
+- **Configurable preservation** of keyframes, fonts, and variables
+- **Content-aware purging** scans actual HTML for used classes
+
+**Integration with other rules:**
+```python
+# Recommended pipeline: purge -> minify -> compress -> critical
+purgecss_hugo_site(
+    name = "site_purged",
+    site = ":site",
+)
+
+minify_hugo_site(
+    name = "site_minified",
+    site = ":site_purged",
+)
+
+critical_css_hugo_site(
+    name = "site_optimized",
+    site = ":site_minified",
+)
+```
+
+### 5. minify_hugo_site Rule
 
 Minifies HTML, CSS, JavaScript, XML, and JSON files to reduce file sizes for production deployment:
 
