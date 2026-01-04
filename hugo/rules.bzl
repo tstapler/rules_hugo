@@ -10,6 +10,11 @@ load("//hugo/internal:hugo_site_minify.bzl", _minify_hugo_site = "minify_hugo_si
 load("//hugo/internal:hugo_site_optimize_images.bzl", _optimize_images_hugo_site = "optimize_images_hugo_site")
 load("//hugo/internal:hugo_site_critical_css.bzl", _critical_css_hugo_site = "critical_css_hugo_site")
 load("//hugo/internal:hugo_site_purgecss.bzl", _purgecss_hugo_site = "purgecss_hugo_site")
+load("//hugo/internal:hugo_site_postcss.bzl", _postcss_hugo_site = "postcss_hugo_site")
+load("//hugo/internal:hugo_site_autoprefixer.bzl", _autoprefixer_hugo_site = "autoprefixer_hugo_site")
+load("//hugo/internal:hugo_site_cssnano.bzl", _cssnano_hugo_site = "cssnano_hugo_site")
+load("//hugo/internal:hugo_site_stylelint.bzl", _stylelint_hugo_site = "stylelint_hugo_site")
+load("//hugo/internal:hugo_site_prerender.bzl", _prerender_hugo_site = "prerender_hugo_site")
 
 # Core rules
 hugo_repository = _hugo_repository
@@ -30,3 +35,8 @@ minify_hugo_site = _minify_hugo_site
 optimize_images_hugo_site = _optimize_images_hugo_site
 critical_css_hugo_site = _critical_css_hugo_site
 purgecss_hugo_site = _purgecss_hugo_site
+postcss_hugo_site = _postcss_hugo_site
+autoprefixer_hugo_site = _autoprefixer_hugo_site
+cssnano_hugo_site = _cssnano_hugo_site
+stylelint_hugo_site = _stylelint_hugo_site
+prerender_hugo_site = _prerender_hugo_site

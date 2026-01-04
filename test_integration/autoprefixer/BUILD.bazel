@@ -1,0 +1,22 @@
+load("@build_stack_rules_hugo//hugo:rules.bzl", "hugo_site", "autoprefixer_hugo_site")
+
+hugo_site(
+    name = "test_site",
+    config = "config.yaml",
+    content = glob(["content/**"]),
+    static = glob(["static/**"]),
+)
+
+autoprefixer_hugo_site(
+    name = "test_site_prefixed",
+    site = ":test_site",
+)
+
+sh_test(
+    name = "test_autoprefixer",
+    srcs = ["test_autoprefixer.sh"],
+    data = [
+        ":test_site",
+        ":test_site_prefixed",
+    ],
+)

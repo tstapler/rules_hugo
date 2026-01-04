@@ -1,4 +1,4 @@
-load("@build_stack_rules_hugo//hugo:rules.bzl", "hugo_site", "hugo_theme", "hugo_serve", "gzip_hugo_site", "hugo_site_files", "minify_hugo_site", "brotli_hugo_site", "purgecss_hugo_site")
+load("@build_stack_rules_hugo//hugo:rules.bzl", "hugo_site", "hugo_theme", "hugo_serve", "gzip_hugo_site", "hugo_site_files", "minify_hugo_site", "brotli_hugo_site", "purgecss_hugo_site", "postcss_hugo_site", "autoprefixer_hugo_site", "cssnano_hugo_site", "stylelint_hugo_site", "prerender_hugo_site")
 
 hugo_theme(
     name = "book",
@@ -50,6 +50,40 @@ purgecss_hugo_site(
     content_glob = "**/*.html",
     keyframes = True,
     font_face = True,
+)
+
+# Example: Lint CSS files for quality and consistency
+stylelint_hugo_site(
+    name = "site_simple_linted",
+    site = ":site_simple",
+)
+
+# Example: Add vendor prefixes for browser compatibility
+autoprefixer_hugo_site(
+    name = "site_simple_prefixed",
+    site = ":site_simple",
+)
+
+# Example: Advanced CSS minification with CSSnano
+cssnano_hugo_site(
+    name = "site_simple_cssnano",
+    site = ":site_simple",
+)
+
+# Example: Complete PostCSS pipeline (lint → prefix → purge → minify)
+postcss_hugo_site(
+    name = "site_simple_postcss",
+    site = ":site_simple",
+    plugins = ["autoprefixer", "purgecss", "cssnano"],
+)
+
+# Example: Prerender HTML pages for better performance
+prerender_hugo_site(
+    name = "site_simple_prerendered",
+    site = ":site_simple",
+    base_url = "https://example.com",
+    wait_for_network_idle = True,
+    minify = True,
 )
 
 # Example: Get file manifest for easier downstream processing

@@ -214,7 +214,73 @@ critical_css_hugo_site(
 )
 ```
 
-### 5. minify_hugo_site Rule
+### 5. PostCSS Ecosystem Rules
+
+#### postcss_hugo_site
+General PostCSS processing with configurable plugins:
+
+```python
+postcss_hugo_site(
+    name = "site_processed",
+    site = ":my_site",
+    plugins = ["autoprefixer", "cssnano"],
+    config = "postcss.config.json",
+)
+```
+
+#### autoprefixer_hugo_site
+Adds vendor prefixes for cross-browser compatibility:
+
+```python
+autoprefixer_hugo_site(
+    name = "site_prefixed",
+    site = ":my_site",
+    grid = True,
+)
+```
+
+#### cssnano_hugo_site
+Advanced CSS minification with PostCSS:
+
+```python
+cssnano_hugo_site(
+    name = "site_minified",
+    site = ":my_site",
+    preset = "default",
+)
+```
+
+#### stylelint_hugo_site
+CSS linting and auto-fixing:
+
+```python
+stylelint_hugo_site(
+    name = "site_linted",
+    site = ":my_site",
+    fix = True,
+)
+```
+
+### 6. prerender_hugo_site Rule
+
+Prerenders HTML pages using headless Chrome for better performance:
+
+```python
+prerender_hugo_site(
+    name = "site_prerendered",
+    site = ":my_site",
+    base_url = "https://example.com",
+    wait_for_network_idle = True,
+    minify = True,
+)
+```
+
+**Benefits:**
+- **Performance**: Instant page loads with prerendered content
+- **SEO**: Search engines see fully rendered HTML
+- **JavaScript Capture**: Includes content rendered by client-side scripts
+
+### 7. minify_hugo_site Rule
 
 Minifies HTML, CSS, JavaScript, XML, and JSON files to reduce file sizes for production deployment:
 
