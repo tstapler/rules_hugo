@@ -19,16 +19,16 @@ within the enterprise**.
 
 Chrystl is designed to:
 
-- **Onboard faster**; ease the transition for new bazel developers 
+- **Onboard faster**; ease the transition for new bazel developers
 - **Provide a shared understanding** from all members/roles of the development team
-- **Debug issues easier** with actions/sandboxing & remote execution 
-- **Search easily** for rules / files within the build 
+- **Debug issues easier** with actions/sandboxing & remote execution
+- **Search easily** for rules / files within the build
 - **Serve generated assets** from the build directly
 
 ## Pricing
 
 Individual develop licenses are available for **$129/user/year**.  Enterprise
-agreements / volume pricing are available on request.  
+agreements / volume pricing are available on request.
 
 Purchase comes with a two week "no-questions-asked" refund policy.
 

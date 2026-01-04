@@ -28,15 +28,12 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-        cache: 'pnpm'
-        cache-dependency-path: pnpm-lock.yaml
-
-    - name: Install pnpm
-      run: npm install -g pnpm
+        cache: 'npm'
+        cache-dependency-path: package-lock.json
 
     - name: Install Node.js dependencies
       run: |
-        timeout 300 pnpm install --frozen-lockfile
+        timeout 300 npm ci
         echo "✅ Dependencies installed"
 
     - name: Set up Bazel

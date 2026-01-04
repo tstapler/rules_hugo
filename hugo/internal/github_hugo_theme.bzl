@@ -3,7 +3,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 DEFAULT_BUILD_FILE = """
 filegroup(
     name = "files",
-    srcs = glob(["**/*"]), 
+    srcs = glob(["**/*"]),
     visibility = ["//visibility:public"],
 )
 """

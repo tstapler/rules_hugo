@@ -2,7 +2,7 @@
 
 <https://proto.stack.build> is a hosted protobuf/gRPC build service that allows
 organization to generate protobuf assets in multiple languages without the
-typical hassle. 
+typical hassle.
 
 
 {{< columns >}}

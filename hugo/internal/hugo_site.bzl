@@ -56,7 +56,7 @@ def _hugo_site_impl(ctx):
 
     if config_dir == None or len(config_dir) == 0:
         config_file = ctx.actions.declare_file(ctx.file.config.basename)
-        
+
         ctx.actions.run_shell(
             inputs = [ctx.file.config],
             outputs = [config_file],
@@ -146,7 +146,7 @@ def _hugo_site_impl(ctx):
         tools = [hugo],
         execution_requirements = {
             "no-sandbox": "1",
-        }, 
+        },
     )
 
     files = depset([hugo_outputdir])
@@ -215,7 +215,7 @@ hugo_site = rule(
         # Files to be included in the i18n/ subdir
         "i18n": attr.label_list(
             allow_files = True,
-        ),        
+        ),
         # The hugo executable
         "hugo": attr.label(
             default = "@hugo//:hugo",
