@@ -36,7 +36,7 @@ def _stylelint_hugo_site_impl(ctx):
         executable = processor_script,
         arguments = [args],
         mnemonic = "Stylelint",
-        progress_message = f"Linting CSS with Stylelint ({mode} mode)",
+        progress_message = "Linting CSS with Stylelint ({} mode)".format(mode),
     )
 
     return [
