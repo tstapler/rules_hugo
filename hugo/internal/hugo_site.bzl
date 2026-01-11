@@ -106,7 +106,7 @@ def _hugo_site_impl(ctx):
                 o_filename = "/".join(["themes", theme.name] + path_list[indx+2:])
             else:
                 o_filename = "/".join(["themes", theme.name, i.short_path[len(theme.path):]])
-            
+
             # Workaround for themes using _partials (like hugo-book) without explicit mounts
             if "/layouts/_partials/" in o_filename:
                 o_filename = o_filename.replace("/layouts/_partials/", "/layouts/partials/")
@@ -114,7 +114,7 @@ def _hugo_site_impl(ctx):
                  o_filename = o_filename.replace("/layouts/_shortcodes/", "/layouts/shortcodes/")
             elif "/layouts/_markup/" in o_filename:
                  o_filename = o_filename.replace("/layouts/_markup/", "/layouts/_default/_markup/")
-            
+
             o = ctx.actions.declare_file(o_filename)
             ctx.actions.run_shell(
                 inputs = [i],

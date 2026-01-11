@@ -25,7 +25,7 @@ const shouldFix = args[3] === 'fix';
 let config = {};
 if (fs.existsSync(configFile)) {
   config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
-  
+
   // Try to resolve extends in provided config
   if (config.extends) {
     const extendsArr = Array.isArray(config.extends) ? config.extends : [config.extends];
@@ -77,7 +77,7 @@ function findCSSFiles(dir, fileList = []) {
       // Exclude minified files and known vendor directories
       const isMinified = file.includes('.min.');
       const isVendor = filePath.includes('/asciinema/') || filePath.includes('/katex/');
-      
+
       if (!isMinified && !isVendor) {
         fileList.push(filePath);
       }
