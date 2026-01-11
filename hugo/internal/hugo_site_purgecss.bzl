@@ -86,6 +86,7 @@ timeout 120 node "$PROCESSOR" "$SITE_ABS" "$OUTPUT_ABS" "$CONTENT_GLOB" $OPTIONS
         executable = script,
         mnemonic = "PurgeCSS",
         progress_message = "Purging unused CSS from Hugo site",
+        use_default_shell_env = True,
         execution_requirements = {
             "no-sandbox": "1",
         },
