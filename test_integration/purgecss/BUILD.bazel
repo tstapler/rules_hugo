@@ -4,6 +4,7 @@ hugo_site(
     name = "test_site",
     config = "config.yaml",
     content = glob(["content/**"]),
+    layouts = glob(["layouts/**"]),
     static = glob(["static/**"]),
 )
 

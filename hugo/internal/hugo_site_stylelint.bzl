@@ -37,6 +37,9 @@ def _stylelint_hugo_site_impl(ctx):
         arguments = [args],
         mnemonic = "Stylelint",
         progress_message = "Linting CSS with Stylelint ({} mode)".format(mode),
+        execution_requirements = {
+            "no-sandbox": "1",
+        },
     )
 
     return [

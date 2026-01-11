@@ -42,9 +42,9 @@ echo "Test 3: Verify vendor prefixes were added..."
 CSS_CONTENT=$(cat "$PREFIXED_SITE/test.css")
 
 # Check for common vendor prefixes
-if ! grep -q "-webkit-flex" "$PREFIXED_SITE/test.css" && \
-   ! grep -q "-webkit-transform" "$PREFIXED_SITE/test.css" && \
-   ! grep -q "-moz-" "$PREFIXED_SITE/test.css"; then
+if ! grep -q -e "-webkit-flex" "$PREFIXED_SITE/test.css" && \
+   ! grep -q -e "-webkit-transform" "$PREFIXED_SITE/test.css" && \
+   ! grep -q -e "-moz-" "$PREFIXED_SITE/test.css"; then
     echo "WARN: No vendor prefixes found - this might be expected with modern Autoprefixer"
     echo "Checking if CSS content is preserved..."
     if grep -q "display: flex" "$PREFIXED_SITE/test.css"; then
@@ -77,7 +77,7 @@ fi
 # Test 5: Verify CSS custom properties are preserved
 echo ""
 echo "Test 5: Verify CSS custom properties are preserved..."
-if grep -q "--primary-color" "$PREFIXED_SITE/test.css"; then
+if grep -q -e "--primary-color" "$PREFIXED_SITE/test.css"; then
     echo "✓ CSS custom properties preserved"
 else
     echo "FAIL: CSS custom properties missing"

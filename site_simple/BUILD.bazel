@@ -14,6 +14,8 @@ hugo_site(
     static = glob(["static/**"], allow_empty=True),
     layouts = glob(["layouts/**"], allow_empty=True),
     theme = ":book",
+    verbose = True,
+    quiet = False,
 )
 
 hugo_serve(
@@ -56,6 +58,8 @@ purgecss_hugo_site(
 stylelint_hugo_site(
     name = "site_simple_linted",
     site = ":site_simple",
+    config = ".stylelintrc.json",
+    fix = True,
 )
 
 # Example: Add vendor prefixes for browser compatibility

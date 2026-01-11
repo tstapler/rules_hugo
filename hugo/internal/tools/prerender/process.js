@@ -16,8 +16,8 @@ if (args.length < 3) {
   process.exit(1);
 }
 
-const inputDir = args[0];
-const outputDir = args[1];
+const inputDir = path.resolve(args[0]);
+const outputDir = path.resolve(args[1]);
 const baseUrl = args[2];
 const options = args.slice(3);
 
@@ -89,6 +89,12 @@ async function prerenderPages() {
   }
 
   // Launch browser
+  try {
+      console.log('Puppeteer executable path:', puppeteer.executablePath());
+  } catch (e) {
+      console.log('Could not determine executable path:', e.message);
+  }
+
   const browser = await puppeteer.launch({
     headless: 'new',
     args: [
@@ -133,7 +139,7 @@ async function prerenderPages() {
 
         // Wait for network idle if requested
         if (prerenderOptions.waitForNetworkIdle) {
-          await page.waitForLoadState('networkidle', { timeout: 5000 });
+          await page.waitForNetworkIdle({ timeout: 5000 });
         }
 
         // Get the rendered HTML
