@@ -37,6 +37,8 @@ jobs:
     - name: Install Node.js dependencies
       run: |
         timeout 300 pnpm install --frozen-lockfile
+        # Install Chrome for Puppeteer (prerendering tests)
+        npx puppeteer browsers install chrome
         echo "✅ Dependencies installed"
 
     - name: Set up Bazel
@@ -91,6 +93,10 @@ jobs:
 
     - name: Verify critical CSS output
       run: |
+        # Debug: list output directory to troubleshoot CI path issues
+        echo "Listing bazel-bin/test_integration/critical_css:"
+        ls -R bazel-bin/test_integration/critical_css || echo "Directory not found"
+
         # Check that critical CSS output exists and has expected content
         if [ ! -f "bazel-bin/test_integration/critical_css/test_site_critical/index.html" ]; then
           echo "ERROR: Critical CSS output not found"
