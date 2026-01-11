@@ -83,12 +83,11 @@ jobs:
     - name: Run brotli compression integration test
       run: bazel test //test_integration/brotli:test_brotli
 
-    # Skip critical CSS for now - requires Node.js dependencies
-    # - name: Run critical CSS integration test
-    #   run: bazel test //test_integration/critical_css:test_critical_css
+    - name: Run critical CSS integration test
+      run: bazel test //test_integration/critical_css:test_critical_css
 
-    # - name: Build critical CSS test site
-    #   run: bazel build //test_integration/critical_css:test_site_critical
+    - name: Build critical CSS test site
+      run: bazel build //test_integration/critical_css:test_site_critical
 
     - name: Verify critical CSS output
       run: |
