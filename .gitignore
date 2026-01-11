@@ -1,1 +1,39 @@
+# Bazel
 bazel-*
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.aider*
+
+# AI Assistant
+.aider.chat.history.md
+.aider.input.history
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+temp_*
+.cache/
+
+# Build artifacts
+dist/
+build/
+
+# Aider AI assistant
+.aider*
+**/aider.*
+*.aider

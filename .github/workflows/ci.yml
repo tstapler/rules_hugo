@@ -1,0 +1,200 @@
+name: CI
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+env:
+  BAZELISK_VERSION: 1.19.0
+
+jobs:
+  test:
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        # TODO: Add macOS and Windows when Node.js dependencies are fully hermetic
+        # os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: pnpm-lock.yaml
+
+    - name: Set up pnpm
+      uses: pnpm/action-setup@v4
+
+    - name: Install Node.js dependencies
+      run: |
+        timeout 300 pnpm install --frozen-lockfile
+        # Install Chrome for Puppeteer (prerendering tests)
+        npx puppeteer browsers install chrome
+        echo "✅ Dependencies installed"
+
+    - name: Set up Bazel
+      run: |
+        # Install Bazelisk (Bazel wrapper)
+        curl -fsSL https://github.com/bazelbuild/bazelisk/releases/download/v1.19.0/bazelisk-linux-amd64 -o bazelisk
+        chmod +x bazelisk
+        sudo mv bazelisk /usr/local/bin/bazel
+
+        # Verify installation
+        bazel version
+
+    - name: Configure Bazel
+      run: |
+        # Create .bazelrc.local for CI-specific settings
+        cat << EOF > .bazelrc.local
+        # CI-specific configuration
+        build --spawn_strategy=sandboxed
+        build --genrule_strategy=sandboxed
+        build --test_output=errors
+        build --verbose_failures
+        test --test_timeout=300
+        EOF
+
+    - name: Verify Bazel version
+      run: bazel version
+
+    - name: Check Bazel syntax and imports
+      run: bazel build //hugo/...
+
+    - name: Build example sites
+      run: |
+        bazel build //site_simple:site_simple
+        bazel build //site_simple:site_simple_minified
+        bazel build //site_simple:site_simple_gz
+        bazel build //site_simple:site_simple_br
+
+    - name: Run Hugo site tests
+      run: bazel test //site_simple:site_test
+
+    - name: Run minification integration test
+      run: bazel test //test_integration/minify:test_minify
+
+    - name: Run brotli compression integration test
+      run: bazel test //test_integration/brotli:test_brotli
+
+    - name: Run critical CSS integration test
+      run: bazel test //test_integration/critical_css:test_critical_css
+
+    - name: Build critical CSS test site
+      run: bazel build //test_integration/critical_css:test_site_critical
+
+    - name: Verify critical CSS output
+      run: |
+        # Check that critical CSS output exists and has expected content
+        if [ ! -f "bazel-bin/test_integration/critical_css/test_site_critical/index.html" ]; then
+          echo "ERROR: Critical CSS output not found"
+          exit 1
+        fi
+        if ! grep -q "<style>" "bazel-bin/test_integration/critical_css/test_site_critical/index.html"; then
+          echo "ERROR: Critical CSS not inlined"
+          exit 1
+        fi
+        echo "✓ Critical CSS properly inlined"
+
+    - name: Verify basic functionality
+      run: |
+        echo "=== Basic functionality verification ==="
+
+        # Check if basic targets exist
+        if [ -d "bazel-bin/site_simple" ]; then
+          echo "✓ Basic site builds exist"
+        fi
+
+        # Check minification output
+        if [ -f "bazel-bin/test_integration/minify/test_site_minified/style.css" ]; then
+          echo "✓ Minification working"
+        fi
+
+        # Check brotli output
+        if [ -f "bazel-bin/test_integration/brotli/test_site_brotli/test.css.br" ]; then
+          echo "✓ Brotli compression working"
+        fi
+
+    - name: Run all tests
+      run: bazel test //...
+
+  # Optional: Add a separate job for code quality checks
+  quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install PyYAML
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Check for trailing whitespace
+      run: |
+        if grep -rI '[[:space:]]$' --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=bazel-* .; then
+          echo "ERROR: Found trailing whitespace"
+          exit 1
+        fi
+
+    - name: Check for Windows line endings
+      run: |
+        if find . -name "*.bzl" -o -name "*.sh" -o -name "*.md" | xargs grep -l $'\r' | grep -v node_modules; then
+          echo "ERROR: Found Windows line endings (CRLF) in source files"
+          exit 1
+        fi
+
+    - name: Check file permissions
+      run: |
+        # Check that scripts are executable
+        for script in $(find . -name "*.sh" | grep -v node_modules); do
+          if [ ! -x "$script" ]; then
+            echo "ERROR: Script $script is not executable"
+            exit 1
+          fi
+        done
+
+    - name: Validate JSON/YAML files
+      run: |
+        # Check package.json
+        if command -v node &> /dev/null; then
+          node -e "JSON.parse(require('fs').readFileSync('package.json', 'utf8'))"
+          echo "✓ package.json is valid JSON"
+        fi
+
+        # Check YAML files (basic syntax)
+        for yaml_file in $(find . -name "*.yaml" -o -name "*.yml" | grep -v node_modules); do
+          if command -v python3 &> /dev/null; then
+            python3 -c "import yaml; yaml.safe_load(open('$yaml_file'))" || {
+              echo "ERROR: Invalid YAML in $yaml_file"
+              exit 1
+            }
+          fi
+        done
+        echo "✓ YAML files are valid"
+
+  # Matrix build for different Bazel versions (optional)
+  # Skip Bazel version matrix for now to simplify CI
+  # bazel-versions:
+  #   name: Bazel ${{ matrix.bazel_version }}
+  #   ...

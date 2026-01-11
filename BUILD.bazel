@@ -1,0 +1,10 @@
+# Root package for rules_hugo
+
+exports_files([
+    "package.json",
+    "pnpm-lock.yaml",
+])
+
+# NOTE: node_modules is not tracked by Bazel (in .bazelignore)
+# The critical_css_hugo_site rule expects it to exist in the workspace
+# Run 'pnpm install' to set it up

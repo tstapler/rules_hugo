@@ -1,6 +1,6 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-HUGO_BUILD_FILE = """    
+HUGO_BUILD_FILE = """
 package(default_visibility = ["//visibility:public"])
 exports_files( ["hugo"] )
 """
@@ -19,7 +19,7 @@ def _hugo_repository_impl(repository_ctx):
         os_arch = "Windows-64bit"
     else:
         os_arch = "Linux-64bit"
-    
+
     url = "https://github.com/gohugoio/hugo/releases/download/v{version}/{hugo}_{version}_{os_arch}.tar.gz".format(
         hugo = hugo,
         os_arch = os_arch,

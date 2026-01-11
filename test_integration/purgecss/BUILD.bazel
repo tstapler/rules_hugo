@@ -1,0 +1,24 @@
+load("@build_stack_rules_hugo//hugo:rules.bzl", "hugo_site", "purgecss_hugo_site")
+
+hugo_site(
+    name = "test_site",
+    config = "config.yaml",
+    content = glob(["content/**"]),
+    layouts = glob(["layouts/**"]),
+    static = glob(["static/**"]),
+)
+
+purgecss_hugo_site(
+    name = "test_site_purged",
+    site = ":test_site",
+    content_glob = "**/*.html",
+)
+
+sh_test(
+    name = "test_purgecss",
+    srcs = ["test_purgecss.sh"],
+    data = [
+        ":test_site",
+        ":test_site_purged",
+    ],
+)

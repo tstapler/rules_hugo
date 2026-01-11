@@ -1,3 +1,6 @@
+load("//hugo/internal:hugo_theme.bzl", "HugoThemeInfo")
+load("//hugo/internal:hugo_site_info.bzl", "HugoSiteInfo")
+
 def relative_path(src, dirname):
     """Given a src File and a directory it's under, return the relative path.
 
@@ -53,7 +56,7 @@ def _hugo_site_impl(ctx):
 
     if config_dir == None or len(config_dir) == 0:
         config_file = ctx.actions.declare_file(ctx.file.config.basename)
-        
+
         ctx.actions.run_shell(
             inputs = [ctx.file.config],
             outputs = [config_file],
@@ -92,7 +95,7 @@ def _hugo_site_impl(ctx):
 
     # Copy the theme
     if ctx.attr.theme:
-        theme = ctx.attr.theme.hugo_theme
+        theme = ctx.attr.theme[HugoThemeInfo]
         hugo_args += ["--theme", theme.name]
         for i in theme.files.to_list():
             path_list = i.short_path.split("/")
@@ -103,6 +106,15 @@ def _hugo_site_impl(ctx):
                 o_filename = "/".join(["themes", theme.name] + path_list[indx+2:])
             else:
                 o_filename = "/".join(["themes", theme.name, i.short_path[len(theme.path):]])
+
+            # Workaround for themes using _partials (like hugo-book) without explicit mounts
+            if "/layouts/_partials/" in o_filename:
+                o_filename = o_filename.replace("/layouts/_partials/", "/layouts/partials/")
+            elif "/layouts/_shortcodes/" in o_filename:
+                 o_filename = o_filename.replace("/layouts/_shortcodes/", "/layouts/shortcodes/")
+            elif "/layouts/_markup/" in o_filename:
+                 o_filename = o_filename.replace("/layouts/_markup/", "/layouts/_default/_markup/")
+
             o = ctx.actions.declare_file(o_filename)
             ctx.actions.run_shell(
                 inputs = [i],
@@ -116,12 +128,18 @@ def _hugo_site_impl(ctx):
     hugo_args += [
         "--destination",
         ctx.label.name,
+       # Hugo wants to modify the static input files for its own bookkeeping
+        # but of course Bazel does not want input files to be changed. This breaks
+        # in some sandboxes like RBE
+        "--noTimes",
+        "--noChmod",
     ]
 
     if ctx.attr.quiet:
         hugo_args.append("--quiet")
     if ctx.attr.verbose:
-        hugo_args.append("--verbose")
+        hugo_args.append("--logLevel")
+        hugo_args.append("info")
     if ctx.attr.base_url:
         hugo_args += ["--baseURL", ctx.attr.base_url]
     if ctx.attr.build_drafts:
@@ -137,16 +155,27 @@ def _hugo_site_impl(ctx):
         tools = [hugo],
         execution_requirements = {
             "no-sandbox": "1",
-        }, 
+        },
     )
 
     files = depset([hugo_outputdir])
     runfiles = ctx.runfiles(files = [hugo_outputdir] + hugo_inputs)
 
-    return [DefaultInfo(
+    # Create HugoSiteInfo provider for easier downstream consumption
+    site_info = HugoSiteInfo(
+        output_dir = hugo_outputdir,
         files = files,
-        runfiles = runfiles,
-    )]
+        base_url = ctx.attr.base_url if ctx.attr.base_url else "",
+        name = ctx.label.name,
+    )
+
+    return [
+        DefaultInfo(
+            files = files,
+            runfiles = runfiles,
+        ),
+        site_info,
+    ]
 
 hugo_site = rule(
     attrs = {
@@ -195,7 +224,7 @@ hugo_site = rule(
         # Files to be included in the i18n/ subdir
         "i18n": attr.label_list(
             allow_files = True,
-        ),        
+        ),
         # The hugo executable
         "hugo": attr.label(
             default = "@hugo//:hugo",
@@ -206,7 +235,7 @@ hugo_site = rule(
         # Optionally set the base_url as a hugo argument
         "base_url": attr.string(),
         "theme": attr.label(
-            providers = ["hugo_theme"],
+            providers = [HugoThemeInfo],
         ),
         # Emit quietly
         "quiet": attr.bool(
@@ -244,8 +273,9 @@ def _hugo_serve_impl(ctx):
 
     if ctx.attr.quiet:
         hugo_args.append("--quiet")
-    if ctx.attr.quiet:
-        hugo_args.append("--verbose")
+    if ctx.attr.verbose:
+        hugo_args.append("--logLevel")
+        hugo_args.append("info")
     if ctx.attr.disable_fast_render:
         hugo_args.append("--disableFastRender")
 

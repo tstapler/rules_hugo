@@ -1,10 +1,17 @@
 ---
+# Cirrus CI - Additional coverage alongside GitHub Actions
 build_task:
   container:
-    image: l.gcr.io/google/bazel:1.1.0
-  build_and_test_script: bazel test
-    --spawn_strategy=sandboxed
-    --strategy=Javac=sandboxed
-    --genrule_strategy=sandboxed
-    --remote_http_cache=http://$CIRRUS_HTTP_CACHE_HOST
-    //site_simple:site_test
+    image: l.gcr.io/google/bazel:8.1.1
+  setup_script:
+    - apt-get update && apt-get install -y nodejs npm
+    - npm install -g pnpm
+    - pnpm install --frozen-lockfile
+  build_and_test_script:
+    - bazel version
+    - bazel build //hugo/...
+    - bazel build //site_simple:site_simple //site_simple:site_simple_minified //site_simple:site_simple_br
+    - bazel test //site_simple:site_test
+    - bazel test //test_integration/minify:test_minify
+    - bazel test //test_integration/brotli:test_brotli
+    - bazel test //test_integration/critical_css:test_critical_css

@@ -1,0 +1,7 @@
+baseURL: "https://example.com"
+title: "PurgeCSS Test Site"
+languageCode: "en-us"
+markup:
+  goldmark:
+    renderer:
+      unsafe: true

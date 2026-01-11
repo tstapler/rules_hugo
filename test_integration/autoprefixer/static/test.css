@@ -1,0 +1,36 @@
+/* Modern CSS that needs vendor prefixes */
+.flex-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.grid-layout {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.transformed-element {
+  transform: translateX(100px) rotate(45deg);
+  transition: transform 0.3s ease;
+}
+
+.gradient-background {
+  background: linear-gradient(to right, #ff0000, #00ff00);
+}
+
+.custom-property {
+  --primary-color: #007bff;
+  color: var(--primary-color);
+}
+
+/* Modern selectors */
+::placeholder {
+  color: #999;
+}
+
+:fullscreen {
+  background: black;
+}
