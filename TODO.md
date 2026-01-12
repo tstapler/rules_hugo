@@ -111,17 +111,17 @@ All new features follow established patterns:
 
 ## Next Atomic Task
 
-**Recommended**: Update Documentation for Bzlmod (Task 1.6 from [docs/tasks/bzlmod_migration.md](docs/tasks/bzlmod_migration.md))
+**Recommended**: Merge PR #1
 
 **Rationale**:
-- CI/Bzlmod migration is technically complete and passing.
-- Documentation (README.md) needs to reflect the new Bzlmod usage to ensure users can adopt it.
-- This is a low-risk, high-value task to wrap up the migration effort.
+- CI/Bzlmod migration is complete, verified, and documented.
+- All checks are passing.
+- Merging will stabilize the `main` branch and allow Phase 2 work to proceed on a clean base.
 
 **Alternative Options**:
-1. Merge `support_bzlmod` PR (Requires user action)
-2. Finish Brotli documentation (Task 1.4 from [docs/tasks/brotli.md](docs/tasks/brotli.md))
-3. Start Link Checker (Phase 3)
+1. Start Link Checker (Phase 3)
+2. Implement AVIF image generation support (Phase 2)
+3. Add Dart Sass support (Phase 2)
 
 ## Dependencies & Blockers
 
