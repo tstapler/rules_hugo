@@ -58,29 +58,11 @@ if [ "$NODE_VERSION" -lt 18 ]; then
     exit 1
 fi
 
-# In Bazel sandbox, use the runfiles approach
-RUNFILES_DIR="${{PROCESSOR}}.runfiles"
-if [ -d "$RUNFILES_DIR" ]; then
-    WORKSPACE_ROOT="$RUNFILES_DIR/_main"
-    echo "Using runfiles workspace at: $WORKSPACE_ROOT"
-else
-    # Fallback for local execution
-    WORKSPACE_ROOT="$(pwd)"
-    echo "Using current directory as workspace: $WORKSPACE_ROOT"
-fi
-
-if [ ! -d "$WORKSPACE_ROOT/node_modules" ]; then
-    echo "ERROR: node_modules not found"
-    echo "WORKSPACE_ROOT: $WORKSPACE_ROOT"
-    exit 1
-fi
-
 # Get absolute paths
 SITE_ABS="$(cd "$SITE_DIR" && pwd)" || SITE_ABS="$SITE_DIR"
 OUTPUT_ABS="$(mkdir -p "$OUTPUT_DIR" && cd "$OUTPUT_DIR" && pwd)"
 
-# cd to workspace root and run processor
-cd "$WORKSPACE_ROOT"
+# Run the processor directly (assumes node_modules is available)
 timeout 120 node "$PROCESSOR" "$SITE_ABS" "$OUTPUT_ABS" "$CONTENT_GLOB" $OPTIONS
 """.format(
         site_dir = site_dir.path,
@@ -104,6 +86,10 @@ timeout 120 node "$PROCESSOR" "$SITE_ABS" "$OUTPUT_ABS" "$CONTENT_GLOB" $OPTIONS
         executable = script,
         mnemonic = "PurgeCSS",
         progress_message = "Purging unused CSS from Hugo site",
+        use_default_shell_env = True,
+        execution_requirements = {
+            "no-sandbox": "1",
+        },
     )
 
     return [

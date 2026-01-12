@@ -148,8 +148,8 @@
   "moduleExtensions": {
     "//hugo/internal:extensions.bzl%hugo_extension": {
       "general": {
-        "bzlTransitiveDigest": "/zHJWMzUuIymxsrqXYLejmyjJ7utNcnGjPIxuYqKNlQ=",
-        "usagesDigest": "kdyXihBZnZ4iqb16rpGKgVlyjxwrfxtq/QjL1Dc/Wb4=",
+        "bzlTransitiveDigest": "r44F0V9P9qmh5rccsIl+r4j818+uDLMLmGkz1pSXerQ=",
+        "usagesDigest": "Dhy0n7FaOSRCiOIUkYWRXH+CdCkPHQweVqYOIcdqdDI=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {},
@@ -157,24 +157,24 @@
           "hugo": {
             "repoRuleId": "@@//hugo/internal:hugo_repository.bzl%hugo_repository",
             "attributes": {
-              "version": "0.145.0",
+              "version": "0.146.0",
               "extended": true
             }
           },
           "com_github_alex_shpak_hugo_book": {
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
             "attributes": {
-              "url": "https://github.com/alex-shpak/hugo-book/archive/07048f7bf5097435a05c1e8b77241b0e478023c2.zip",
-              "strip_prefix": "hugo-book-07048f7bf5097435a05c1e8b77241b0e478023c2",
-              "build_file_content": "\nfilegroup(\n    name = \"files\",\n    srcs = glob([\"**/*\"]), \n    visibility = [\"//visibility:public\"],\n)\n",
-              "sha256": "2897befb721e2bde54bb8acb43887d84c2855956f8efad5bd761628fe7fe5339"
+              "url": "https://github.com/alex-shpak/hugo-book/archive/cec082b8dd9b31d0c52b2de95d86ced9909cc7ec.zip",
+              "strip_prefix": "hugo-book-cec082b8dd9b31d0c52b2de95d86ced9909cc7ec",
+              "build_file_content": "\nfilegroup(\n    name = \"files\",\n    srcs = glob([\"**/*\"]),\n    visibility = [\"//visibility:public\"],\n)\n",
+              "sha256": "71b6885054d0b11562fc8353d31b98ca225915ce9441b6e4909484e7556e2f22"
             }
           },
           "com_github_thegeeklab_hugo_geekdoc": {
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
             "attributes": {
-              "url": "https://github.com/thegeeklab/hugo-geekdoc/releases/download/v0.34.2/hugo-geekdoc.tar.gz",
-              "sha256": "7fdd57f7d4450325a778629021c0fff5531dc8475de6c4ec70ab07e9484d400e",
+              "url": "https://github.com/thegeeklab/hugo-geekdoc/releases/download/v2.0.0/hugo-geekdoc.tar.gz",
+              "sha256": "0a3c69818aa36ec4318c0fb67f29b499363ff22aa4f73be32e752a224ecbb395",
               "build_file_content": "filegroup(name = \"files\", srcs = glob([\"**\"]), visibility = [\"//visibility:public\"])"
             }
           }

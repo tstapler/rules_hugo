@@ -50,6 +50,20 @@ function findCSSFiles(dir, fileList = []) {
   return fileList;
 }
 
+// Helper to list all files for debugging
+function listAllFiles(dir, fileList = []) {
+  const files = fs.readdirSync(dir);
+  files.forEach(file => {
+    const filePath = path.join(dir, file);
+    if (fs.statSync(filePath).isDirectory()) {
+      listAllFiles(filePath, fileList);
+    } else {
+      fileList.push(filePath);
+    }
+  });
+  return fileList;
+}
+
 // Copy non-CSS files
 function copyDirectory(src, dest) {
   fs.mkdirSync(dest, { recursive: true });
@@ -70,6 +84,12 @@ function copyDirectory(src, dest) {
 async function processCSSFiles() {
   console.log(`Processing CSS files from ${inputDir} to ${outputDir}`);
   console.log(`Content glob: ${contentGlob}`);
+  console.log(`PurgeCSS content path: ${path.join(inputDir, contentGlob)}`);
+  try {
+    console.log(`All files in inputDir:`, listAllFiles(inputDir));
+  } catch (e) {
+    console.log(`Error reading inputDir: ${e.message}`);
+  }
   console.log(`Options:`, purgeOptions);
 
   // Copy all non-CSS files first
@@ -79,9 +99,17 @@ async function processCSSFiles() {
   const cssFiles = findCSSFiles(inputDir);
   console.log(`Found ${cssFiles.length} CSS files to process`);
 
+  // Find all content files (manual recursion to avoid glob issues)
+  const contentFiles = [];
+  listAllFiles(inputDir, contentFiles);
+  // Filter out CSS files and obviously non-content files if needed
+  // For now, passing everything that isn't CSS is safer than missing files
+  const validContentFiles = contentFiles.filter(f => !f.endsWith('.css'));
+  console.log(`Found ${validContentFiles.length} content files for PurgeCSS analysis`);
+
   // Configure PurgeCSS
   const purgecssPlugin = purgecss({
-    content: [path.join(inputDir, contentGlob)], // Scan HTML/content files
+    content: validContentFiles,
     css: cssFiles, // CSS files to purge
     keyframes: purgeOptions.keyframes,
     fontFace: purgeOptions.fontFace,

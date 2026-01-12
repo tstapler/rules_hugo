@@ -39,6 +39,7 @@ def _prerender_hugo_site_impl(ctx):
         arguments = [args],
         mnemonic = "Prerender",
         progress_message = "Prerendering HTML pages with Puppeteer",
+        use_default_shell_env = True,
         execution_requirements = {
             # Allow network access for Puppeteer
             "no-sandbox": "1",

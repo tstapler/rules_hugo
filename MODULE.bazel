@@ -1,7 +1,12 @@
 module(name = "build_stack_rules_hugo")
 
+# Common Bazel utilities
+bazel_dep(name = "bazel_skylib", version = "1.7.1", repo_name = "bazel_skylib")
+bazel_dep(name = "platforms", version = "0.0.10")
+
 # Dependencies for image optimization
 bazel_dep(name = "rules_foreign_cc", version = "0.12.0")
+bazel_dep(name = "bazel_skylib", version = "1.7.1")
 
 # Dependencies for critical CSS extraction (Node.js + npm)
 bazel_dep(name = "aspect_rules_js", version = "2.1.0")
@@ -14,7 +19,7 @@ hugo = use_extension(
 
 hugo.hugo(
     name = "hugo",
-    version = "0.145.0",
+    version = "0.146.0",
     extended = True,
 )
 
@@ -22,14 +27,14 @@ hugo.github_theme(
     name = "com_github_alex_shpak_hugo_book",
     owner = "alex-shpak",
     repo = "hugo-book",
-    commit = "07048f7bf5097435a05c1e8b77241b0e478023c2",
-    sha256 = "2897befb721e2bde54bb8acb43887d84c2855956f8efad5bd761628fe7fe5339",
+    commit = "cec082b8dd9b31d0c52b2de95d86ced9909cc7ec",
+    sha256 = "71b6885054d0b11562fc8353d31b98ca225915ce9441b6e4909484e7556e2f22",
 )
 
 hugo.http_theme(
     name = "com_github_thegeeklab_hugo_geekdoc",
-    url = "https://github.com/thegeeklab/hugo-geekdoc/releases/download/v0.34.2/hugo-geekdoc.tar.gz",
-    sha256 = "7fdd57f7d4450325a778629021c0fff5531dc8475de6c4ec70ab07e9484d400e",
+    url = "https://github.com/thegeeklab/hugo-geekdoc/releases/download/v2.0.0/hugo-geekdoc.tar.gz",
+    sha256 = "0a3c69818aa36ec4318c0fb67f29b499363ff22aa4f73be32e752a224ecbb395",
     build_file_content = """filegroup(name = "files", srcs = glob(["**"]), visibility = ["//visibility:public"])""",
 )
 

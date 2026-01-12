@@ -1,7 +1,7 @@
 """CSSnano rule for Hugo sites - advanced CSS minification."""
 
 load("//hugo/internal:hugo_site_info.bzl", "HugoSiteInfo")
-load("@bazel_skylib//lib:json.bzl", "json")
+
 
 def _cssnano_hugo_site_impl(ctx):
     """Minifies CSS using CSSnano for maximum compression."""
@@ -44,6 +44,10 @@ def _cssnano_hugo_site_impl(ctx):
         arguments = [args],
         mnemonic = "CSSnano",
         progress_message = "Minifying CSS with CSSnano",
+        use_default_shell_env = True,
+        execution_requirements = {
+            "no-sandbox": "1",
+        },
     )
 
     return [

@@ -26,7 +26,7 @@ def _gzip_hugo_site_impl(ctx):
 set -euo pipefail
 
 SITE_DIR="{site_dir}"
-OUTPUT_DIR="{output_dir}"
+OUTPUT_DIR="$PWD/{output_dir}"
 
 echo "Gzipping files from $SITE_DIR to $OUTPUT_DIR"
 
@@ -35,7 +35,7 @@ mkdir -p "$OUTPUT_DIR"
 
 # Find and gzip matching files
 cd "$SITE_DIR"
-find . -type f \\( {find_expr} \\) | while read -r file; do
+find -L . -type f \\( {find_expr} \\) | while read -r file; do
     # Create directory structure in output
     dirname="$(dirname "$file")"
     mkdir -p "$OUTPUT_DIR/$dirname"

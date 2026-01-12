@@ -29,11 +29,16 @@ jobs:
       with:
         node-version: '20'
         cache: 'npm'
-        cache-dependency-path: package-lock.json
+        cache-dependency-path: pnpm-lock.yaml
+
+    - name: Set up pnpm
+      uses: pnpm/action-setup@v4
 
     - name: Install Node.js dependencies
       run: |
-        timeout 300 npm ci
+        timeout 300 pnpm install --frozen-lockfile
+        # Install Chrome for Puppeteer (prerendering tests)
+        npx puppeteer browsers install chrome
         echo "✅ Dependencies installed"
 
     - name: Set up Bazel
@@ -80,12 +85,11 @@ jobs:
     - name: Run brotli compression integration test
       run: bazel test //test_integration/brotli:test_brotli
 
-    # Skip critical CSS for now - requires Node.js dependencies
-    # - name: Run critical CSS integration test
-    #   run: bazel test //test_integration/critical_css:test_critical_css
+    - name: Run critical CSS integration test
+      run: bazel test //test_integration/critical_css:test_critical_css
 
-    # - name: Build critical CSS test site
-    #   run: bazel build //test_integration/critical_css:test_site_critical
+    - name: Build critical CSS test site
+      run: bazel build //test_integration/critical_css:test_site_critical
 
     - name: Verify critical CSS output
       run: |
@@ -136,9 +140,19 @@ jobs:
       with:
         python-version: '3.x'
 
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install PyYAML
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
     - name: Check for trailing whitespace
       run: |
-        if grep -r '[[:space:]]$' --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=bazel-* .; then
+        if grep -rI '[[:space:]]$' --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=bazel-* .; then
           echo "ERROR: Found trailing whitespace"
           exit 1
         fi

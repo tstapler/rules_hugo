@@ -1,7 +1,7 @@
 """Autoprefixer rule for Hugo sites - adds vendor prefixes to CSS."""
 
 load("//hugo/internal:hugo_site_info.bzl", "HugoSiteInfo")
-load("@bazel_skylib//lib:json.bzl", "json")
+
 
 def _autoprefixer_hugo_site_impl(ctx):
     """Adds vendor prefixes to CSS using Autoprefixer."""
@@ -44,6 +44,10 @@ def _autoprefixer_hugo_site_impl(ctx):
         arguments = [args],
         mnemonic = "Autoprefixer",
         progress_message = "Adding vendor prefixes with Autoprefixer",
+        use_default_shell_env = True,
+        execution_requirements = {
+            "no-sandbox": "1",
+        },
     )
 
     return [

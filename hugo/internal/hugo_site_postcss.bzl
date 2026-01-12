@@ -41,6 +41,10 @@ def _postcss_hugo_site_impl(ctx):
         arguments = [args],
         mnemonic = "PostCSS",
         progress_message = "Processing CSS with PostCSS",
+        use_default_shell_env = True,
+        execution_requirements = {
+            "no-sandbox": "1",
+        },
     )
 
     return [

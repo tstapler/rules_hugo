@@ -19,8 +19,9 @@ def _expand_hugo_site_impl(ctx):
         inputs = [output_dir],
         outputs = [manifest],
         command = """
+            manifest_path="$PWD/{manifest}"
             cd {dir}
-            find . -type f | sort > {manifest}
+            find . -type f | sort > "$manifest_path"
         """.format(
             dir = output_dir.path,
             manifest = manifest.path,

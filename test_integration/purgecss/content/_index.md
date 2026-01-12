@@ -12,5 +12,4 @@ title: "Home"
 
 <div class="content">
   <p class="text">Some content here.</p>
-  <div class="unused-class">This should be removed</div>
 </div>

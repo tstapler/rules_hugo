@@ -64,6 +64,7 @@ timeout 30 node "$PROCESSOR" "$SITE_ABS" "$OUTPUT_ABS"
         executable = script,
         mnemonic = "CriticalCSS",
         progress_message = "Extracting critical CSS for Hugo site",
+        use_default_shell_env = True,
         execution_requirements = {
             # Allow network access for Node.js (if needed)
             "no-sandbox": "1",
