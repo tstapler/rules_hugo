@@ -2,6 +2,7 @@
 
 ## Recently Completed ✅
 
+- ✅ **Bzlmod Migration & CI Stabilization**: Fixed Starlark json loads, Node.js/Puppeteer in CI, theme updates (bzlmod_migration)
 - ✅ **Asset Minification**: 45-49% size reduction (minify_hugo_site)
 - ✅ **Brotli Compression**: 53% compression ratio (brotli_hugo_site)
 - ✅ **Critical CSS Extraction**: 18% inlining (critical_css_hugo_site)
@@ -43,7 +44,7 @@ Based on user requirements and research into Hugo/static site best practices for
    - Implementation: optimize_images_hugo_site rule with hermetic libwebp
    - Completed: 2025-11-28
 
-4. **Critical CSS Extraction** � [docs/tasks/critical-css.md](docs/tasks/critical-css.md)
+4. **Critical CSS Extraction**  [docs/tasks/critical-css.md](docs/tasks/critical-css.md)
    - Status: 🔄 In Progress
    - Value: Instant above-fold rendering, PageSpeed boost
    - Effort: Medium-Large (1 week - HTML/CSS processing)
@@ -51,35 +52,35 @@ Based on user requirements and research into Hugo/static site best practices for
 
 ### Phase 3: Developer Quality Tools (Parallel Work)
 
-5. **Link Checker** � [docs/tasks/link-checker.md](docs/tasks/link-checker.md)
-   - Status: =� Planned
+5. **Link Checker**  [docs/tasks/link-checker.md](docs/tasks/link-checker.md)
+   - Status: = Planned
    - Value: Catch broken links pre-deployment
    - Effort: Medium (1 week)
 
-6. **HTML Validation** � [docs/tasks/html-validation.md](docs/tasks/html-validation.md)
-   - Status: =� Planned
+6. **HTML Validation**  [docs/tasks/html-validation.md](docs/tasks/html-validation.md)
+   - Status: = Planned
    - Value: Ensure HTML5 compliance
    - Effort: Small (3 days)
 
-7. **Accessibility Checker** � [docs/tasks/accessibility-checker.md](docs/tasks/accessibility-checker.md)
-   - Status: =� Planned
+7. **Accessibility Checker**  [docs/tasks/accessibility-checker.md](docs/tasks/accessibility-checker.md)
+   - Status: = Planned
    - Value: WCAG compliance validation
    - Effort: Medium (1 week)
 
-8. **Performance Budgets** � [docs/tasks/performance-budgets.md](docs/tasks/performance-budgets.md)
-   - Status: =� Planned
+8. **Performance Budgets**  [docs/tasks/performance-budgets.md](docs/tasks/performance-budgets.md)
+   - Status: = Planned
    - Value: Prevent performance regressions
    - Effort: Small (2-3 days)
 
 ### Phase 4: Platform Integration (As Needed)
 
-9. **Cloudflare Pages Deployment** � [docs/tasks/cloudflare-deploy.md](docs/tasks/cloudflare-deploy.md)
-   - Status: =� Planned
+9. **Cloudflare Pages Deployment**  [docs/tasks/cloudflare-deploy.md](docs/tasks/cloudflare-deploy.md)
+   - Status: = Planned
    - Primary deployment target
    - Generate _headers, _redirects, Workers integration
 
-10. **Nginx Container Optimization** � [docs/tasks/nginx-optimization.md](docs/tasks/nginx-optimization.md)
-    - Status: =� Planned
+10. **Nginx Container Optimization**  [docs/tasks/nginx-optimization.md](docs/tasks/nginx-optimization.md)
+    - Status: = Planned
     - Fallback deployment target
     - Header optimization, caching rules
 
@@ -87,12 +88,12 @@ Based on user requirements and research into Hugo/static site best practices for
 
 All new features follow established patterns:
 
--  Use `HugoSiteInfo` provider for input
--  Return `DefaultInfo` + `OutputGroupInfo`
--  Follow naming: `<verb>_hugo_site` or `hugo_site_<noun>`
--  Export through `hugo/rules.bzl`
--  Include comprehensive docstrings
--  Add integration tests
+-   Use `HugoSiteInfo` provider for input
+-   Return `DefaultInfo` + `OutputGroupInfo`
+-   Follow naming: `<verb>_hugo_site` or `hugo_site_<noun>`
+-   Export through `hugo/rules.bzl`
+-   Include comprehensive docstrings
+-   Add integration tests
 
 ## Task Sizing Framework
 
@@ -110,23 +111,21 @@ All new features follow established patterns:
 
 ## Next Atomic Task
 
-**Recommended**: Finish with Task 1.4 from [docs/tasks/brotli.md](docs/tasks/brotli.md) - Update Documentation
+**Recommended**: Merge PR #1
 
 **Rationale**:
-- Integration test complete (Task 1.3 done) - brotli compression working perfectly
-- Small scope (1 hour) to document the implementation
-- Completes the entire brotli epic
-- Enables adoption by updating DOWNSTREAM_INTEGRATION.md and README.md
-- Quick win to add compression options
+- CI/Bzlmod migration is complete, verified, and documented.
+- All checks are passing.
+- Merging will stabilize the `main` branch and allow Phase 2 work to proceed on a clean base.
 
 **Alternative Options**:
-1. Brotli compression (even simpler, 1 file, 1 hour)
-2. Performance budgets (independent, quality tool)
-3. HTML validation (independent, quality tool)
+1. Start Link Checker (Phase 3)
+2. Implement AVIF image generation support (Phase 2)
+3. Add Dart Sass support (Phase 2)
 
 ## Dependencies & Blockers
 
-**None** - All Phase 1 tasks are unblocked and can start immediately.
+**None** - CI is passing.
 
 ## Research References
 
@@ -146,4 +145,4 @@ Track impact of optimizations:
 
 ---
 
-Last Updated: 2026-01-03 (Critical CSS timeout fixed, brotli integration test completed)
+Last Updated: 2026-01-11 (Bzlmod migration & CI fixes completed)
