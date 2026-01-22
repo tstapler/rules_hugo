@@ -77,7 +77,21 @@ jobs:
         bazel build //site_simple:site_simple_br
 
     - name: Run Hugo site tests
-      run: bazel test //site_simple:site_test
+      run: |
+        # Debug CI environment issues
+        echo "=== CI Environment Debug ==="
+        bazel version
+        echo "=== Module Status ==="
+        ls -la MODULE.bazel || echo "No MODULE.bazel found"
+        echo "=== Repository State ==="
+        bazel query //... --output=build || echo "Query failed"
+        echo "=== Starting Test ==="
+        bazel test //site_simple:site_test --verbose_failures --sandbox_debug || {
+          echo "Test failed with exit code $?"
+          echo "=== Debug Info ==="
+          find bazel-bin -type f -name "*.log" -exec tail -10 {} \;
+          exit $?
+        }
 
     - name: Run minification integration test
       run: bazel test //test_integration/minify:test_minify
