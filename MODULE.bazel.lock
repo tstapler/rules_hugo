@@ -148,7 +148,7 @@
   "moduleExtensions": {
     "//hugo/internal:extensions.bzl%hugo_extension": {
       "general": {
-        "bzlTransitiveDigest": "r44F0V9P9qmh5rccsIl+r4j818+uDLMLmGkz1pSXerQ=",
+        "bzlTransitiveDigest": "RIK2wHTjqvkOIXY5LgA5piMWFAFQXRrqKygQeDkRezY=",
         "usagesDigest": "Dhy0n7FaOSRCiOIUkYWRXH+CdCkPHQweVqYOIcdqdDI=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
