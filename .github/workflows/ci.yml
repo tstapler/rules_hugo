@@ -22,10 +22,14 @@ jobs:
 
       - name: Install Hugo
         run: |
-          # Install Hugo binary directly to avoid complex dependency chains
-          curl -fsSL https://github.com/gohugoio/hugo/releases/download/v0.146.0/hugo-extended_0.146.0_linux-amd64.tar.gz | tar -xz
-          sudo mv hugo /usr/local/bin/hugo
-          hugo version
+          # Use bazelisk to install Hugo via MODULE.bazel dependencies
+          curl -fsSL https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64 -o bazelisk
+          chmod +x bazelisk
+          sudo mv bazelisk /usr/local/bin/bazelisk
+          
+          # Install Hugo using bazelisk (will use MODULE.bazel dependencies)
+          bazelisk --version
+          echo "Installing Hugo via Bazel dependencies..."
 
       - name: Set up Bazel
         run: |
@@ -33,7 +37,7 @@ jobs:
           curl -fsSL https://github.com/bazelbuild/bazelisk/releases/download/v1.19.0/bazelisk-linux-amd64 -o bazelisk
           chmod +x bazelisk
           sudo mv bazelisk /usr/local/bin/bazel
-          bazel version
+          bazelisk --version
 
       - name: Configure Bazel
         run: |
