@@ -1,0 +1,81 @@
+load("@io_bazel_rules_hugo//hugo:defs.bzl", "hugo_site", "hugo_serve")
+load("@io_bazel_rules_devserver//devserver:defs.bzl", "devserver")
+
+# Example Hugo site
+hugo_site(
+    name = "example_site",
+    srcs = glob([
+        "content/**",
+        "static/**",
+        "layouts/**",
+        "data/**",
+        "i18n/**",
+        "archetypes/**",
+        "assets/**",
+    ]),
+    config = "config.yaml",
+    theme = ":example_theme",
+)
+
+# Example theme
+hugo_theme(
+    name = "example_theme",
+    srcs = [
+        "theme.toml",
+    ],
+    theme_dir = "themes/example",
+)
+
+# Enhanced hugo serve - Basic usage
+hugo_serve(
+    name = "serve",
+    site = ":example_site",
+    draft = True,
+    bind = "0.0.0.0",
+    port = 1313,
+    navigate_to_changed = True,
+    disable_fast_render = False,
+    verbose = True,
+)
+
+# Development server with rules_devserver integration
+hugo_serve(
+    name = "hugo_dev",
+    site = ":example_site",
+    draft = True,
+    build_drafts = True,
+    build_future = True,
+    bind = "127.0.0.1",
+    port = 1313,
+    live_reload_port = 35729,
+    navigate_to_changed = True,
+    disable_fast_render = False,
+    additional_args = ["--minify"],
+)
+
+# rules_devserver integration
+devserver(
+    name = "devserver",
+    main = ":hugo_dev",
+    additional_args = [
+        "--port=8080",
+        "--proxy=http://localhost:8080",
+    ],
+    support_workspace = True,
+    data = [":example_site"],
+)
+
+# Production-like development server
+hugo_serve(
+    name = "serve_prod_like",
+    site = ":example_site",
+    draft = False,
+    build_drafts = False,
+    build_future = False,
+    build_expired = False,
+    bind = "0.0.0.0",
+    port = 8080,
+    base_url = "https://example.com",
+    disable_fast_render = False,
+    quiet = True,
+)

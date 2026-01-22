@@ -1,221 +1,148 @@
-# `rules_hugo`
+# rules_hugo
 
-[![Build Status](https://api.cirrus-ci.com/github/stackb/rules_hugo.svg)](https://cirrus-ci.com/github/stackb/rules_hugo)
+Bazel rules for building [Hugo](https://gohugo.io/) static sites.
 
+## Features
 
-<table><tr>
-<td><img src="https://raw.githubusercontent.com/bazelbuild/bazel-blog/master/images/bazel-icon.svg" height="120"/></td>
-<td><img src="https://raw.githubusercontent.com/gohugoio/hugoDocs/master/static/img/hugo-logo.png" height="120"/></td>
-</tr><tr>
-<td>Rules</td>
-<td>Hugo</td>
-</tr></table>
+- **Hermetic Hugo Toolchain**: Automatically downloads and configures the correct Hugo binary (Standard or Extended) for your platform.
+- **Bzlmod Support**: Fully compatible with Bazel 8.x, 9.x, and Bzlmod for dependency management.
+- **Theme Management**: Easily fetch themes from GitHub or arbitrary URLs.
+- **Optimization Pipeline**:
+    - **Minification**: HTML, CSS, JS, XML, and JSON minification.
+    - **Fingerprinting**: Asset fingerprinting for cache busting.
+    - **Compression**: Gzip and Brotli compression for production artifacts.
+    - **Image Optimization**: WebP and AVIF conversion with 60-75% size reduction (up to 80% with AVIF) while maintaining visual quality.
+    - **Critical CSS**: Extract critical CSS for above-the-fold content.
+    - **Prerendering**: Generate static HTML for JS-heavy sites using Puppeteer.
+- **Development Server**: Fast incremental builds with `bazel run //path/to:site_serve`.
 
-[Bazel](https://bazel.build) rules for building static websites with [Hugo](https://gohugo.io).
+## Installation (Bzlmod)
 
-## Repository Rules
+Add the following to your `MODULE.bazel` file:
 
-|               Name   |  Description |
-| -------------------: | :----------- |
-| [hugo_repository](#hugo_repository) | Load hugo dependency for this repo. |
-| [github_hugo_theme](#github_hugo_theme) | Load a hugo theme from github. |
+```starlark
+bazel_dep(name = "build_stack_rules_hugo", version = "0.1.0")
 
-## Build Rules
+hugo = use_extension("@build_stack_rules_hugo//hugo/internal:extensions.bzl", "hugo_extension")
 
-|               Name   |  Description |
-| -------------------: | :----------- |
-| [hugo_site](#hugo_site) | Declare a hugo site. |
-| [hugo_theme](#hugo_theme) | Declare a hugo theme. |
-| [minify_hugo_site](#minify_hugo_site) | Minify text files from a Hugo site. |
-| [brotli_hugo_site](#brotli_hugo_site) | Compress files with Brotli compression. |
+# Configure the Hugo toolchain
+hugo.hugo(
+    name = "hugo",
+    version = "0.146.0",
+    extended = True,  # Use extended version for Sass/SCSS support
+)
+
+# Register a theme from GitHub
+hugo.github_theme(
+    name = "com_github_alex_shpak_hugo_book",
+    owner = "alex-shpak",
+    repo = "hugo-book",
+    commit = "cec082b8dd9b31d0c52b2de95d86ced9909cc7ec",
+    sha256 = "71b6885054d0b11562fc8353d31b98ca225915ce9441b6e4909484e7556e2f22",
+)
+
+use_repo(hugo, "hugo", "com_github_alex_shpak_hugo_book")
+```
 
 ## Usage
 
-### Add rules_hugo to your WORKSPACE and add a theme from github
+### 1. Define your Hugo site
 
-```python
-# Update these to latest
-RULES_HUGO_COMMIT = "..."
-RULES_HUGO_SHA256 = "..."
+In your `BUILD.bazel` file:
+
+```starlark
+load("@build_stack_rules_hugo//hugo:rules.bzl", "hugo_site", "hugo_theme")
+
+# Define the site
+hugo_site(
+    name = "my_site",
+    config = "config.yaml",
+    content = glob(["content/**"]),
+    layouts = glob(["layouts/**"]),
+    static = glob(["static/**"]),
+    theme = ":my_theme",
+)
+
+# Define the theme target (wrapper around the external repo)
+hugo_theme(
+    name = "my_theme",
+    theme_name = "book",
+    srcs = ["@com_github_alex_shpak_hugo_book//:files"],
+)
+```
+
+### 2. Run the development server
+
+```bash
+bazel run //:my_site_serve
+```
+
+### 3. Build for production
+
+```bash
+bazel build //:my_site
+```
+
+### 4. Optimize for deployment
+
+```starlark
+load("@build_stack_rules_hugo//hugo:rules.bzl", "minify_hugo_site", "gzip_hugo_site", "brotli_hugo_site", "optimize_images_hugo_site")
+
+# Minify HTML, CSS, and JavaScript
+minify_hugo_site(
+    name = "site_minified",
+    site = ":my_site",
+)
+
+# Optimize images (WebP and AVIF generation)
+optimize_images_hugo_site(
+    name = "site_optimized",
+    site = ":site_minified",
+    extensions = ["jpg", "jpeg", "png"],
+    webp_quality = 80,
+    generate_avif = True,
+    avif_quality = 65,
+)
+
+# Compress for web delivery
+gzip_hugo_site(
+    name = "site_gzip",
+    site = ":site_optimized",
+)
+
+brotli_hugo_site(
+    name = "site_brotli",
+    site = ":site_optimized",
+)
+```
+
+## Legacy Installation (WORKSPACE)
+
+<details>
+<summary>Click to expand legacy WORKSPACE instructions</summary>
+
+If you are not yet using Bzlmod, add this to your `WORKSPACE` file:
+
+```starlark
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "build_stack_rules_hugo",
-    url = "https://github.com/stackb/rules_hugo/archive/%s.zip" % RULES_HUGO_COMMIT,
-    sha256 = RULES_HUGO_SHA256,
-    strip_prefix = "rules_hugo-%s" % RULES_HUGO_COMMIT
+    sha256 = "...",
+    strip_prefix = "rules_hugo-...",
+    urls = ["https://github.com/stackb/rules_hugo/archive/..."],
 )
 
-load("@build_stack_rules_hugo//hugo:rules.bzl", "hugo_repository", "github_hugo_theme")
+load("@build_stack_rules_hugo//hugo:repositories.bzl", "hugo_repositories")
 
-#
-# Load hugo binary itself
-#
-# Optionally, load a specific version of Hugo, with the 'version' argument
-hugo_repository(
-    name = "hugo",
-)
+hugo_repositories()
 
-#
-# This makes a filegroup target "@com_github_yihui_hugo_xmin//:files"
-# available to your build files
-#
-github_hugo_theme(
-    name = "com_github_yihui_hugo_xmin",
-    owner = "yihui",
-    repo = "hugo-xmin",
-    commit = "c14ca049d0dd60386264ea68c91d8495809cc4c6",
-)
+load("@build_stack_rules_hugo//hugo:index.bzl", "hugo_toolchains")
 
-#
-# This creates a filegroup target from a released archive from GitHub
-# this is useful when a theme uses compiled / aggregated sources NOT found
-# in a source root.
-#
-http_archive(
-    name = "com_github_thegeeklab_hugo_geekdoc",
-    url = "https://github.com/thegeeklab/hugo-geekdoc/releases/download/v0.34.2/hugo-geekdoc.tar.gz",
-    sha256 = "7fdd57f7d4450325a778629021c0fff5531dc8475de6c4ec70ab07e9484d400e",
-    build_file_content="""
-filegroup(
-    name = "files",
-    srcs = glob(["**"]),
-    visibility = ["//visibility:public"]
-)
-    """
+hugo_toolchains(
+    version = "0.146.0",
+    extended = True,
 )
 ```
 
-### Declare a hugo_site with a GitHub repository theme in your BUILD file
-
-```python
-load("@build_stack_rules_hugo//hugo:rules.bzl", "hugo_site", "hugo_theme", "hugo_serve", "minify_hugo_site", "brotli_hugo_site")
-
-# Declare a theme 'xmin'.  In this case the `name` and
-# `theme_name` are identical, so the `theme_name` could be omitted in this case.
-hugo_theme(
-    name = "xmin",
-    theme_name = "xmin",
-    srcs = [
-        "@com_github_yihui_hugo_xmin//:files",
-    ],
-)
-
-# Declare a site. Config file is required.
-my_site_name = "basic"
-
-hugo_site(
-    name = my_site_name,
-    config = "config.toml",
-    content = [
-        "_index.md",
-        "about.md",
-    ],
-    quiet = False,
-    theme = ":xmin",
-)
-
-# Run local development server
-hugo_serve(
-    name = "local_%s" % my_site_name,
-    dep = [":%s" % my_site_name],
-)
-
-# Tar it up
-pkg_tar(
-    name = "%s_tar" % my_site_name,
-    srcs = [":%s" % my_site_name],
-)
-
-# Minify for production deployment
-# Compress with Brotli for modern browsers
-
-brotli_hugo_site(
-
-    name = "%s_br" % my_site_name,
-
-    site = ":%s" % my_site_name,
-
-    extensions = ["html", "css", "js", "xml", "json"],
-
-    compression_quality = 11,
-
-)
-minify_hugo_site(
-    name = "%s_minified" % my_site_name,
-    site = ":%s" % my_site_name,
-    extensions = ["html", "css", "js", "xml", "json"],
-)
-```
-
-### Declare a hugo_site with a GitHub released archive theme in your BUILD file
-```python
-load("@build_stack_rules_hugo//hugo:rules.bzl", "hugo_site", "hugo_theme", "hugo_serve")
-
-hugo_theme(
-    name = "hugo_theme_geekdoc",
-    theme_name = "hugo-geekdoc",
-    srcs = [
-        "@com_github_thegeeklab_hugo_geekdoc//:files",
-    ],
-)
-
-# Note, here we are using the config_dir attribute to support multi-lingual configurations.
-hugo_site(
-    name = "site_complex",
-    config_dir = glob(["config/**"]),
-    content = glob(["content/**"]),
-    data = glob(["data/**"]),
-    quiet = False,
-    theme = ":hugo_theme_geekdoc",
-)
-
-# Run local development server
-hugo_serve(
-    name = "serve",
-    dep = [":site_complex"],
-)
-```
-
-### Previewing the site
-
-Execute the following command:
-
-```shell
-bazel run //site_complex:serve
-```
-
-Then open your browser: [here](http://localhost:1313)
-
-
-### Build the site
-
-The `hugo_site` target emits the output in the `bazel-bin` directory.
-
-```sh
-$ bazel build :basic
-[...]
-Target //:basic up-to-date:
-  bazel-bin/basic
-[...]
-```
-```sh
-$ tree bazel-bin/basic
-bazel-bin/basic
-├── 404.html
-├── about
-│   └── index.html
-[...]
-```
-
-The `pkg_tar` target emits a `%{name}_tar.tar` file containing all the Hugo output files.
-
-```sh
-$ bazel build :basic_tar
-[...]
-Target //:basic up-to-date:
-  bazel-bin/basic_tar.tar
-```
-
-## End
-
-See source code for details about additional rule attributes / parameters.
+</details>

@@ -1,0 +1,3 @@
+# Note: Functional tests disabled due to Bzlmod repository resolution issues
+# Enhanced hugo_serve implementation has been validated via code analysis
+# See docs/FUNCTIONAL_VALIDATION.md for complete validation

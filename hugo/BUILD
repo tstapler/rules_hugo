@@ -12,3 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+package(default_visibility = ["//visibility:public"])
+
+exports_files([
+    "rules.bzl",
+    "extensions.bzl",
+    "github_hugo_theme.bzl",
+    "hugo_repository.bzl",
+    "hugo_site.bzl",
+    "hugo_site_autoprefixer.bzl",
+    "hugo_site_brotli.bzl",
+    "hugo_site_critical_css.bzl",
+    "hugo_site_cssnano.bzl",
+    "hugo_site_files.bzl",
+    "hugo_site_info.bzl",
+    "hugo_site_link_checker.bzl",
+    "hugo_site_minify.sh",
+    "hugo_site_minify.bzl",
+    "hugo_site_optimize_images.bzl",
+    "hugo_site_postcss.bzl",
+    "hugo_site_purgecss.bzl",
+    "hugo_site_prerender.bzl",
+    "hugo_site_stylelint.bzl",
+    "hugo_theme.bzl",
+])
