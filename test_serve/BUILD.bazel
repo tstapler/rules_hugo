@@ -1,0 +1,15 @@
+load("@io_bazel_rules_hugo//hugo:defs.bzl", "hugo_site", "hugo_serve")
+
+hugo_site(
+    name = "test_site",
+    srcs = ["test_config.yaml"],
+)
+
+hugo_serve(
+    name = "serve",
+    dep = [":test_site"],
+    draft = True,
+    bind = "0.0.0.0",
+    port = 1313,
+    navigate_to_changed = True,
+)

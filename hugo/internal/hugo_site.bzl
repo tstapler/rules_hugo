@@ -179,90 +179,91 @@ def _hugo_site_impl(ctx):
 
 hugo_site = rule(
     attrs = {
-        "site": attr.label(
+        # Hugo config file
+        "config": attr.label(
+            allow_single_file = [
+                ".toml",
+                ".yaml",
+                ".yml",
+                ".json",
+            ],
+        ),
+        # For use of config directories
+        "config_dir": attr.label_list(
+            allow_files = True,
+        ),
+        # Files to be included in the content/ subdir
+        "content": attr.label_list(
+            allow_files = True,
             mandatory = True,
-            allow_single_file = False,
-            providers = [HugoSiteInfo],
         ),
-        "hugo_bin": attr.label(
-            default = Label("@org_gohugoio_hugo//:hugo_bin"),
-            cfg = "exec",
+        # Files to be included in the archetypes/ subdir
+        "archetypes": attr.label_list(
+            allow_files = True,
+        ),
+        # Files to be included in the static/ subdir
+        "static": attr.label_list(
+            allow_files = True,
+        ),
+        # Files to be included in the images/ subdir
+        "images": attr.label_list(
+            allow_files = True,
+        ),
+        # Files to be included in the layouts/ subdir
+        "layouts": attr.label_list(
+            allow_files = True,
+        ),
+        # Files to be included in the assets/ subdir
+        "assets": attr.label_list(
+            allow_files = True,
+        ),
+        # Files to be included in the data/ subdir
+        "data": attr.label_list(
+            allow_files = True,
+        ),
+        # Files to be included in the i18n/ subdir
+        "i18n": attr.label_list(
+            allow_files = True,
+        ),
+        # The hugo executable
+        "hugo": attr.label(
+            default = "@hugo//:hugo",
+            allow_files = True,
             executable = True,
-            allow_single_file = True,
+            cfg = "host",
         ),
-        
-        # Enhanced server configuration
-        "draft": attr.bool(
-            default = False,
-            doc = "Include content marked as draft. Equivalent to -D flag.",
+        # Optionally set the base_url as a hugo argument
+        "base_url": attr.string(),
+        "theme": attr.label(
+            providers = [HugoThemeInfo],
         ),
-        "bind": attr.string(
-            default = "",
-            doc = "Interface to bind to for the HTTP server.",
-        ),
-        "port": attr.int(
-            default = 0,
-            doc = "Port to run the server on. 0 means random port.",
-        ),
-        "base_url": attr.string(
-            default = "",
-            doc = "Hostname (and path) to the root.",
-        ),
-        "live_reload_port": attr.int(
-            default = 0,
-            doc = "Port for live reloading server. 0 means random port.",
-        ),
-        "navigate_to_changed": attr.bool(
-            default = False,
-            doc = "Navigate to the changed file when using live reload.",
-        ),
-        
-        # Development options
-        "build_drafts": attr.bool(
-            default = False,
-            doc = "Include content marked as draft.",
-        ),
-        "build_future": attr.bool(
-            default = False,
-            doc = "Include content with publishdate in the future.",
-        ),
-        "build_expired": attr.bool(
-            default = False,
-            doc = "Include content already expired.",
-        ),
-        
-        # Traditional options
+        # Emit quietly
         "quiet": attr.bool(
-            default = False,
-            doc = "Enables quiet mode.",
+            default = True,
         ),
+        # Emit verbose
         "verbose": attr.bool(
             default = False,
-            doc = "Enables verbose logging.",
         ),
-        "disable_fast_render": attr.bool(
+        # Build content marked as draft
+        "build_drafts": attr.bool(
             default = False,
-            doc = "Disables fast render mode. See https://gohugo.io/commands/hugo_server/#fast-render-mode for more information.",
         ),
-        
-        # rules_devserver integration
-        "additional_args": attr.string_list(
-            default = [],
-            doc = "Additional arguments to pass to hugo serve. Useful for rules_devserver integration.",
-        ),
-        
-        "_hugo_site": attr.label(
-            default = Label(":hugo_site"),
-            providers = [HugoSiteInfo],
-        ),
-        "_hugo_bin": attr.label(
-            default = Label("@org_gohugoio_hugo//:hugo_bin"),
-            cfg = "exec",
-            executable = True,
-            allow_single_file = True,
-        ),
-    }
+    },
+    implementation = _hugo_site_impl,
+)
 
+_SERVE_SCRIPT_PREFIX = """#!/usr/bin/env bash
+set -e
+echo "Starting Hugo development server..."
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+trap exit_gracefully SIGINT
+function exit_gracefully() {
+    exit 0;
+}
+
+"""
 _SERVE_SCRIPT_TEMPLATE = """{hugo_bin} serve -s $DIR {args}"""
 
 def _hugo_serve_impl(ctx):
@@ -287,8 +288,6 @@ def _hugo_serve_impl(ctx):
         hugo_args.append("--navigateToChanged")
     
     # Development options
-    if ctx.attr.disable_fast_render:
-        hugo_args.append("--disableFastRender")
     if ctx.attr.build_drafts:
         hugo_args.append("--buildDrafts")
     if ctx.attr.build_future:
@@ -296,15 +295,17 @@ def _hugo_serve_impl(ctx):
     if ctx.attr.build_expired:
         hugo_args.append("--buildExpired")
     
+    # Additional args from rules_devserver integration
+    hugo_args.extend(ctx.attr.additional_args)
+
     # Traditional options
     if ctx.attr.quiet:
         hugo_args.append("--quiet")
     if ctx.attr.verbose:
         hugo_args.append("--logLevel")
         hugo_args.append("info")
-    
-    # Additional args from rules_devserver integration
-    hugo_args.extend(ctx.attr.additional_args)
+    if ctx.attr.disable_fast_render:
+        hugo_args.append("--disableFastRender")
 
     executable_path = "./" + ctx.attr.hugo.files_to_run.executable.short_path
 
@@ -336,34 +337,6 @@ def _hugo_serve_impl(ctx):
 
 
 hugo_serve = rule(
-    doc = """
-Creates a Hugo development server target with enhanced configuration options.
-
-This rule provides a development server for Hugo sites with extensive customization
-options including port binding, draft mode, live reload, and rules_devserver integration.
-
-Example usage:
-    load("@io_bazel_rules_hugo//hugo:defs.bzl", "hugo_serve")
-
-    hugo_serve(
-        name = "serve",
-        site = ":my_site",
-        draft = True,
-        bind = "0.0.0.0",
-        port = 1313,
-        navigate_to_changed = True,
-        additional_args = ["--disableFastRender"],
-    )
-
-For rules_devserver integration:
-    load("@io_bazel_rules_devserver//devserver:defs.bzl", "devserver")
-    
-    devserver(
-        name = "devserver",
-        main = ":serve",
-        additional_args = ["--port=8080"],
-    )
-""",
     attrs = {
         # The hugo executable
         "hugo": attr.label(
@@ -375,17 +348,67 @@ For rules_devserver integration:
         "dep": attr.label_list(
             mandatory=True,
         ),
+        
+        # Enhanced server configuration
+        "draft": attr.bool(
+            default = False,
+            doc = "Include content marked as draft. Equivalent to -D flag.",
+        ),
+        "bind": attr.string(
+            default = "",
+            doc = "Interface to bind to for the HTTP server.",
+        ),
+        "port": attr.int(
+            default = 0,
+            doc = "Port to run server on. 0 means random port.",
+        ),
+        "base_url": attr.string(
+            default = "",
+            doc = "Hostname (and path) to the root.",
+        ),
+        "live_reload_port": attr.int(
+            default = 0,
+            doc = "Port for live reloading server. 0 means random port.",
+        ),
+        "navigate_to_changed": attr.bool(
+            default = False,
+            doc = "Navigate to the changed file when using live reload.",
+        ),
+        
+        # Development options
+        "build_drafts": attr.bool(
+            default = False,
+            doc = "Include content marked as draft.",
+        ),
+        "build_future": attr.bool(
+            default = False,
+            doc = "Include content with publishdate in the future.",
+        ),
+        "build_expired": attr.bool(
+            default = False,
+            doc = "Include content already expired.",
+        ),
+        
+        # rules_devserver integration
+        "additional_args": attr.string_list(
+            default = [],
+            doc = "Additional arguments to pass to hugo serve. Useful for rules_devserver integration.",
+        ),
+        
         # Disable fast render
         "disable_fast_render": attr.bool(
             default = False,
+            doc = "Disables fast render mode.",
         ),
         # Emit quietly
         "quiet": attr.bool(
             default = True,
+            doc = "Enables quiet mode.",
         ),
         # Emit verbose
         "verbose": attr.bool(
             default = False,
+            doc = "Enables verbose logging.",
         ),
     },
     implementation = _hugo_serve_impl,
