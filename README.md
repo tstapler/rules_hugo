@@ -5,7 +5,7 @@ Bazel rules for building [Hugo](https://gohugo.io/) static sites.
 ## Features
 
 - **Hermetic Hugo Toolchain**: Automatically downloads and configures the correct Hugo binary (Standard or Extended) for your platform.
-- **Bzlmod Support**: Fully compatible with Bazel 8.x and Bzlmod for dependency management.
+- **Bzlmod Support**: Fully compatible with Bazel 8.x, 9.x, and Bzlmod for dependency management.
 - **Theme Management**: Easily fetch themes from GitHub or arbitrary URLs.
 - **Optimization Pipeline**:
     - **Minification**: HTML, CSS, JS, XML, and JSON minification.
