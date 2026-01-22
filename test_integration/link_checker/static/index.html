@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home Page</title>
+</head>
+<body>
+    <h1>Link Checker Test Site</h1>
+    <p>This is the home page for testing the link checker.</p>
+    
+    <h2>Valid Internal Links</h2>
+    <ul>
+        <li><a href="valid-page.html">Valid Page</a></li>
+        <li><a href="valid-page.html">Another Valid Page</a></li>
+    </ul>
+    
+    <h2>Valid External Links</h2>
+    <ul>
+        <li><a href="https://github.com">GitHub</a></li>
+        <li><a href="https://www.google.com">Google</a></li>
+        <li><a href="https://example.com">Example</a></li>
+    </ul>
+    
+    <h2>Mixed Links</h2>
+    <ul>
+        <li>Internal to <a href="valid-page.html">Valid Page</a> and external to <a href="https://github.com">GitHub</a></li>
+    </ul>
+    
+    <h2>Broken Links (for testing)</h2>
+    <ul>
+        <li><a href="non-existent.html">Broken Internal</a></li>
+        <li><a href="https://this-domain-does-not-exist-12345.com">Broken External</a></li>
+        <li><a href="ftp://invalid-protocol.example.com">Invalid Protocol</a></li>
+    </ul>
+</body>
+</html>

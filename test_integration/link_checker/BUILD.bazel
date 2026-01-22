@@ -1,0 +1,51 @@
+load("@build_stack_rules_hugo//hugo:rules.bzl", "hugo_site", "link_checker_hugo_site")
+
+hugo_site(
+    name = "test_site",
+    config = "config.yaml",
+    content = glob(["content/**"]),
+    static = glob(["static/**"]),
+)
+
+# Test the link checker rule with internal links only
+link_checker_hugo_site(
+    name = "test_site_links_internal",
+    site = ":test_site",
+    check_external = False,
+    timeout = 10,
+)
+
+# Test the link checker rule with external links (may fail due to network)
+link_checker_hugo_site(
+    name = "test_site_links_full",
+    site = ":test_site",
+    check_external = True,
+    timeout = 5,
+)
+
+sh_test(
+    name = "test_link_checker_rule",
+    srcs = ["test_link_checker_rule.sh"],
+    data = [
+        ":test_site_links_internal",
+        ":test_site_links_full",
+        "//hugo/internal/tools/link_checker:check.py",
+        "//hugo/internal/tools/link_checker:requirements.txt",
+    ],
+    env = {
+        "PYTHONPATH": "$(location //hugo/internal/tools/link_checker:check.py)",
+    },
+)
+
+sh_test(
+    name = "test_link_checker",
+    srcs = ["test_link_checker.sh"],
+    data = [
+        ":test_site",
+        "//hugo/internal/tools/link_checker:check.py",
+        "//hugo/internal/tools/link_checker:requirements.txt",
+    ],
+    env = {
+        "PYTHONPATH": "$(location //hugo/internal/tools/link_checker:check.py)",
+    },
+)

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Broken Links Test Page</title>
+</head>
+<body>
+    <h1>Broken Links Test Page</h1>
+    <p>This page intentionally contains broken links for testing the link checker's ability to detect issues.</p>
+    
+    <h2>Valid Links (should pass)</h2>
+    <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="valid-page.html">Valid Page</a></li>
+        <li><a href="https://www.google.com">Google</a></li>
+    </ul>
+    
+    <h2>Broken Internal Links (should fail)</h2>
+    <ul>
+        <li><a href="this-page-does-not-exist.html">Non-existent Page</a></li>
+        <li><a href="missing-content.html">Another Missing Page</a></li>
+        <li><a href="valid-pae.html">Typo in Reference</a></li>
+    </ul>
+    
+    <h2>Broken External Links (should fail)</h2>
+    <ul>
+        <li><a href="https://this-domain-absolutely-does-not-exist-12345.com">Invalid Domain</a></li>
+        <li><a href="htp://missing-protocol-letter.com">Bad Protocol</a></li>
+        <li><a href="https://[invalid-chars].com">Malformed URL</a></li>
+        <li><a href="http://http-only-should-work-but-might-be-flagged.com">Non-secure HTTP</a></li>
+        <li><a href="https://localhost:99999">Port That Doesn't Exist</a></li>
+    </ul>
+    
+    <h2>Edge Cases</h2>
+    <ul>
+        <li><a href="">Empty Link</a></li>
+        <li><a href="/relative/path/that/does/not/exist">Relative Link</a></li>
+        <li><a href="#section-that-does-not-exist">Anchor Only</a></li>
+    </ul>
+    
+    <p>This page tests that the link checker can distinguish between working and broken links on the same page.</p>
+</body>
+</html>

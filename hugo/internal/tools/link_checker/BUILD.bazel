@@ -1,0 +1,11 @@
+# Export the script for use by Starlark rules
+exports_files([
+    "check.py",
+    "requirements.txt",
+])
+
+# Note: For production use, install Python dependencies manually:
+# pip install -r requirements.txt
+# 
+# The link checker rule handles missing dependencies gracefully and provides
+# clear error messages to guide users on dependency installation.

@@ -8,6 +8,7 @@ load("//hugo/internal:hugo_site_cssnano.bzl", _cssnano_hugo_site = "cssnano_hugo
 load("//hugo/internal:hugo_site_files.bzl", _hugo_site_files = "hugo_site_files", _process_hugo_site = "process_hugo_site")
 load("//hugo/internal:hugo_site_gzip.bzl", _gzip_hugo_site = "gzip_hugo_site")
 load("//hugo/internal:hugo_site_info.bzl", _HugoSiteInfo = "HugoSiteInfo")
+load("//hugo/internal:hugo_site_link_checker.bzl", _link_checker_hugo_site = "link_checker_hugo_site")
 load("//hugo/internal:hugo_site_minify.bzl", _minify_hugo_site = "minify_hugo_site")
 load("//hugo/internal:hugo_site_optimize_images.bzl", _optimize_images_hugo_site = "optimize_images_hugo_site")
 load("//hugo/internal:hugo_site_postcss.bzl", _postcss_hugo_site = "postcss_hugo_site")
@@ -33,6 +34,7 @@ gzip_hugo_site = _gzip_hugo_site
 brotli_hugo_site = _brotli_hugo_site
 minify_hugo_site = _minify_hugo_site
 optimize_images_hugo_site = _optimize_images_hugo_site
+link_checker_hugo_site = _link_checker_hugo_site
 critical_css_hugo_site = _critical_css_hugo_site
 purgecss_hugo_site = _purgecss_hugo_site
 postcss_hugo_site = _postcss_hugo_site
