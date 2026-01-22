@@ -3,7 +3,7 @@ HugoThemeInfo = provider(
         "name": "Theme name",
         "path": "Theme path",
         "files": "Theme files",
-    }
+    },
 )
 
 def _hugo_theme_impl(ctx):
@@ -18,8 +18,7 @@ def _hugo_theme_impl(ctx):
 
 hugo_theme = rule(
     attrs = {
-        "theme_name": attr.string(
-        ),
+        "theme_name": attr.string(),
         "srcs": attr.label_list(
             mandatory = True,
             allow_files = True,

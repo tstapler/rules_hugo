@@ -2,7 +2,6 @@
 
 load("//hugo/internal:hugo_site_info.bzl", "HugoSiteInfo")
 
-
 def _autoprefixer_hugo_site_impl(ctx):
     """Adds vendor prefixes to CSS using Autoprefixer."""
     site_info = ctx.attr.site[HugoSiteInfo]
@@ -18,7 +17,7 @@ def _autoprefixer_hugo_site_impl(ctx):
     config = {
         "autoprefixer": {
             "grid": getattr(ctx.attr, "grid", True),
-        }
+        },
     }
 
     # Create config file

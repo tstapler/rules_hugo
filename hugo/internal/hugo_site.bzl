@@ -1,5 +1,5 @@
-load("//hugo/internal:hugo_theme.bzl", "HugoThemeInfo")
 load("//hugo/internal:hugo_site_info.bzl", "HugoSiteInfo")
+load("//hugo/internal:hugo_theme.bzl", "HugoThemeInfo")
 
 def relative_path(src, dirname):
     """Given a src File and a directory it's under, return the relative path.
@@ -72,11 +72,13 @@ def _hugo_site_impl(ctx):
         ]
     else:
         placeholder_file = ctx.actions.declare_file(".placeholder")
-        ctx.actions.write(placeholder_file, "paceholder", is_executable=False)
+        ctx.actions.write(placeholder_file, "paceholder", is_executable = False)
         hugo_inputs.append(placeholder_file)
+
         #  placeholder_file.dirname + "/config/_default/config.yaml",
         hugo_args += [
-            "--source", placeholder_file.dirname
+            "--source",
+            placeholder_file.dirname,
         ]
 
     # Copy all the files over
@@ -101,9 +103,9 @@ def _hugo_site_impl(ctx):
             path_list = i.short_path.split("/")
             if i.short_path.startswith("../"):
                 o_filename = "/".join(["themes", theme.name] + path_list[2:])
-            elif i.short_path[len(theme.path):].startswith("/themes"): # check if themes is the first dir after theme path
+            elif i.short_path[len(theme.path):].startswith("/themes"):  # check if themes is the first dir after theme path
                 indx = path_list.index("themes")
-                o_filename = "/".join(["themes", theme.name] + path_list[indx+2:])
+                o_filename = "/".join(["themes", theme.name] + path_list[indx + 2:])
             else:
                 o_filename = "/".join(["themes", theme.name, i.short_path[len(theme.path):]])
 
@@ -111,9 +113,9 @@ def _hugo_site_impl(ctx):
             if "/layouts/_partials/" in o_filename:
                 o_filename = o_filename.replace("/layouts/_partials/", "/layouts/partials/")
             elif "/layouts/_shortcodes/" in o_filename:
-                 o_filename = o_filename.replace("/layouts/_shortcodes/", "/layouts/shortcodes/")
+                o_filename = o_filename.replace("/layouts/_shortcodes/", "/layouts/shortcodes/")
             elif "/layouts/_markup/" in o_filename:
-                 o_filename = o_filename.replace("/layouts/_markup/", "/layouts/_default/_markup/")
+                o_filename = o_filename.replace("/layouts/_markup/", "/layouts/_default/_markup/")
 
             o = ctx.actions.declare_file(o_filename)
             ctx.actions.run_shell(
@@ -128,7 +130,7 @@ def _hugo_site_impl(ctx):
     hugo_args += [
         "--destination",
         ctx.label.name,
-       # Hugo wants to modify the static input files for its own bookkeeping
+        # Hugo wants to modify the static input files for its own bookkeeping
         # but of course Bazel does not want input files to be changed. This breaks
         # in some sandboxes like RBE
         "--noTimes",
@@ -272,7 +274,7 @@ def _hugo_serve_impl(ctx):
     hugo_outfile = ctx.actions.declare_file("{}.out".format(ctx.label.name))
     hugo_outputs = [hugo_outfile]
     hugo_args = []
-    
+
     # Enhanced serve options
     if ctx.attr.draft:
         hugo_args.append("-D")
@@ -286,7 +288,7 @@ def _hugo_serve_impl(ctx):
         hugo_args.extend(["--liveReloadPort", str(ctx.attr.live_reload_port)])
     if ctx.attr.navigate_to_changed:
         hugo_args.append("--navigateToChanged")
-    
+
     # Development options
     if ctx.attr.build_drafts:
         hugo_args.append("--buildDrafts")
@@ -294,7 +296,7 @@ def _hugo_serve_impl(ctx):
         hugo_args.append("--buildFuture")
     if ctx.attr.build_expired:
         hugo_args.append("--buildExpired")
-    
+
     # Additional args from rules_devserver integration
     hugo_args.extend(ctx.attr.additional_args)
 
@@ -310,31 +312,29 @@ def _hugo_serve_impl(ctx):
     executable_path = "./" + ctx.attr.hugo.files_to_run.executable.short_path
 
     runfiles = ctx.runfiles()
-    runfiles = runfiles.merge(ctx.runfiles(files=[ctx.attr.hugo.files_to_run.executable]))
+    runfiles = runfiles.merge(ctx.runfiles(files = [ctx.attr.hugo.files_to_run.executable]))
 
     for dep in ctx.attr.dep:
-        runfiles = runfiles.merge(dep.default_runfiles).merge(dep.data_runfiles).merge(ctx.runfiles(files=dep.files.to_list()))
-
+        runfiles = runfiles.merge(dep.default_runfiles).merge(dep.data_runfiles).merge(ctx.runfiles(files = dep.files.to_list()))
 
     script = ctx.actions.declare_file("{}-serve".format(ctx.label.name))
     script_content = _SERVE_SCRIPT_PREFIX + _SERVE_SCRIPT_TEMPLATE.format(
-        hugo_bin=executable_path,
-        args=" ".join(hugo_args),
+        hugo_bin = executable_path,
+        args = " ".join(hugo_args),
     )
-    ctx.actions.write(output=script, content=script_content, is_executable=True)
+    ctx.actions.write(output = script, content = script_content, is_executable = True)
 
     ctx.actions.run_shell(
         mnemonic = "GoHugoServe",
         tools = [script, hugo],
         command = script.path,
         outputs = hugo_outputs,
-        execution_requirements={
+        execution_requirements = {
             "no-sandbox": "1",
         },
     )
 
-    return [DefaultInfo(executable=script, runfiles=runfiles)]
-
+    return [DefaultInfo(executable = script, runfiles = runfiles)]
 
 hugo_serve = rule(
     attrs = {
@@ -346,9 +346,9 @@ hugo_serve = rule(
             cfg = "host",
         ),
         "dep": attr.label_list(
-            mandatory=True,
+            mandatory = True,
         ),
-        
+
         # Enhanced server configuration
         "draft": attr.bool(
             default = False,
@@ -374,7 +374,7 @@ hugo_serve = rule(
             default = False,
             doc = "Navigate to the changed file when using live reload.",
         ),
-        
+
         # Development options
         "build_drafts": attr.bool(
             default = False,
@@ -388,13 +388,13 @@ hugo_serve = rule(
             default = False,
             doc = "Include content already expired.",
         ),
-        
+
         # rules_devserver integration
         "additional_args": attr.string_list(
             default = [],
             doc = "Additional arguments to pass to hugo serve. Useful for rules_devserver integration.",
         ),
-        
+
         # Disable fast render
         "disable_fast_render": attr.bool(
             default = False,

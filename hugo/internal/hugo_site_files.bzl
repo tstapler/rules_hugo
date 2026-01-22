@@ -82,7 +82,6 @@ hugo_site_files = rule(
     },
 )
 
-
 def _process_hugo_site_impl(ctx):
     """Generic processor for Hugo site files with a custom script."""
     site_info = ctx.attr.site[HugoSiteInfo]

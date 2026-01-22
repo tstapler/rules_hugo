@@ -2,7 +2,6 @@
 
 load("//hugo/internal:hugo_site_info.bzl", "HugoSiteInfo")
 
-
 def _cssnano_hugo_site_impl(ctx):
     """Minifies CSS using CSSnano for maximum compression."""
     site_info = ctx.attr.site[HugoSiteInfo]
@@ -18,7 +17,7 @@ def _cssnano_hugo_site_impl(ctx):
     config = {
         "cssnano": {
             "preset": ctx.attr.preset,
-        }
+        },
     }
 
     # Create config file
