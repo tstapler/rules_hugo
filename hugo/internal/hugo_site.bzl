@@ -263,12 +263,7 @@ hugo_site = rule(
         ),
     }
 
-_SERVE_SCRIPT_TEMPLATE = """#!/usr/bin/env bash
-set -e
-echo "Starting Hugo development server..."
-cd "{dir}"
-exec "{hugo_bin}" serve -s . {args}
-"""
+_SERVE_SCRIPT_TEMPLATE = """{hugo_bin} serve -s $DIR {args}"""
 
 def _hugo_serve_impl(ctx):
     """ This is a long running process used for development"""
@@ -321,16 +316,7 @@ def _hugo_serve_impl(ctx):
 
 
     script = ctx.actions.declare_file("{}-serve".format(ctx.label.name))
-    
-    # Get the site directory from the first dependency
-    site_dir = "."
-    if ctx.attr.dep:
-        site_files = ctx.attr.dep[0].files.to_list()
-        if site_files:
-            site_dir = site_files[0].dirname
-    
     script_content = _SERVE_SCRIPT_PREFIX + _SERVE_SCRIPT_TEMPLATE.format(
-        dir=site_dir,
         hugo_bin=executable_path,
         args=" ".join(hugo_args),
     )
@@ -389,65 +375,17 @@ For rules_devserver integration:
         "dep": attr.label_list(
             mandatory=True,
         ),
-        
-        # Enhanced server configuration
-        "draft": attr.bool(
-            default = False,
-            doc = "Include content marked as draft. Equivalent to -D flag.",
-        ),
-        "bind": attr.string(
-            default = "",
-            doc = "Interface to bind to for the HTTP server.",
-        ),
-        "port": attr.int(
-            default = 0,
-            doc = "Port to run the server on. 0 means random port.",
-        ),
-        "base_url": attr.string(
-            default = "",
-            doc = "Hostname (and path) to the root.",
-        ),
-        "live_reload_port": attr.int(
-            default = 0,
-            doc = "Port for live reloading server. 0 means random port.",
-        ),
-        "navigate_to_changed": attr.bool(
-            default = False,
-            doc = "Navigate to the changed file when using live reload.",
-        ),
-        
-        # Development options
-        "build_drafts": attr.bool(
-            default = False,
-            doc = "Include content marked as draft.",
-        ),
-        "build_future": attr.bool(
-            default = False,
-            doc = "Include content with publishdate in the future.",
-        ),
-        "build_expired": attr.bool(
-            default = False,
-            doc = "Include content already expired.",
-        ),
-        
-        # Traditional options
+        # Disable fast render
         "disable_fast_render": attr.bool(
             default = False,
-            doc = "Disables fast render mode.",
         ),
+        # Emit quietly
         "quiet": attr.bool(
             default = True,
-            doc = "Enables quiet mode.",
         ),
+        # Emit verbose
         "verbose": attr.bool(
             default = False,
-            doc = "Enables verbose logging.",
-        ),
-        
-        # rules_devserver integration
-        "additional_args": attr.string_list(
-            default = [],
-            doc = "Additional arguments to pass to hugo serve. Useful for rules_devserver integration.",
         ),
     },
     implementation = _hugo_serve_impl,
