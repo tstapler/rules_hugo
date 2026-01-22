@@ -1,4 +1,4 @@
-load("@build_stack_rules_hugo//hugo:rules.bzl", "hugo_site", "hugo_theme", "hugo_serve", "gzip_hugo_site", "hugo_site_files", "minify_hugo_site", "brotli_hugo_site", "purgecss_hugo_site", "postcss_hugo_site", "autoprefixer_hugo_site", "cssnano_hugo_site", "stylelint_hugo_site", "prerender_hugo_site")
+load("@build_stack_rules_hugo//hugo:rules.bzl", "hugo_site", "hugo_theme", "hugo_serve", "gzip_hugo_site", "hugo_site_files", "minify_hugo_site", "brotli_hugo_site", "purgecss_hugo_site", "postcss_hugo_site", "autoprefixer_hugo_site", "cssnano_hugo_site", "stylelint_hugo_site", "prerender_hugo_site", "optimize_images_hugo_site")
 
 hugo_theme(
     name = "book",
@@ -101,4 +101,14 @@ minify_hugo_site(
     name = "site_simple_minified",
     site = ":site_simple",
     extensions = ["html", "css", "js", "xml", "json"],
+)
+
+# Example: Optimize images for modern formats
+optimize_images_hugo_site(
+    name = "site_optimized",
+    site = ":site_simple",
+    extensions = ["jpg", "jpeg", "png"],
+    webp_quality = 80,
+    generate_avif = True,
+    avif_quality = 65,
 )

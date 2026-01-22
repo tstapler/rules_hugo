@@ -253,7 +253,9 @@ hugo_site = rule(
     implementation = _hugo_site_impl,
 )
 
-_SERVE_SCRIPT_PREFIX = """#!/bin/bash
+_SERVE_SCRIPT_PREFIX = """#!/usr/bin/env bash
+set -e
+echo "Starting Hugo development server..."
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 trap exit_gracefully SIGINT

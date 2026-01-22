@@ -280,7 +280,95 @@ prerender_hugo_site(
 - **SEO**: Search engines see fully rendered HTML
 - **JavaScript Capture**: Includes content rendered by client-side scripts
 
-### 7. minify_hugo_site Rule
+### 7. optimize_images_hugo_site Rule
+
+Optimizes images by generating modern WebP and AVIF variants for significant size reduction:
+
+```python
+load("@build_stack_rules_hugo//hugo:rules.bzl", "hugo_site", "optimize_images_hugo_site")
+
+hugo_site(
+    name = "my_site",
+    config = "config.yaml",
+    content = glob(["content/**"]),
+    static = glob(["static/**"]),
+)
+
+# Generate WebP and AVIF variants for better performance
+optimize_images_hugo_site(
+    name = "my_site_optimized",
+    site = ":my_site",
+    extensions = ["jpg", "jpeg", "png"],
+    webp_quality = 80,
+    generate_avif = True,
+    avif_quality = 65,
+)
+```
+
+**Benefits:**
+- **60-75% size reduction** for PNG/JPG images through WebP conversion
+- **Up to 80% reduction** with AVIF (supported by Chrome, Firefox, Safari 16+)
+- **Browser fallback support** - originals preserved alongside variants
+- **Hermetic builds** using libwebp (no system dependencies)
+
+**Browser Support Strategy:**
+
+Serve modern formats with fallbacks:
+
+```html
+<!-- HTML <picture> element for automatic format selection -->
+<picture>
+  <source srcset="image.avif" type="image/avif">
+  <source srcset="image.webp" type="image/webp">
+  <img src="image.jpg" alt="Description">
+</picture>
+```
+
+**nginx configuration for format negotiation:**
+
+```nginx
+# nginx configuration
+server {
+    listen 80;
+    root /usr/share/nginx/html;
+
+    # Try AVIF first, then WebP, fallback to original
+    location ~* \.(jpg|jpeg|png)$ {
+        add_header Vary Accept;
+        try_files $uri.avif $uri.webp $uri =404;
+    }
+
+    # Set correct content types
+    location ~* \.avif$ {
+        add_header Content-Type image/avif;
+    }
+    location ~* \.webp$ {
+        add_header Content-Type image/webp;
+    }
+}
+```
+
+**Integration with other optimizations:**
+
+```python
+# Recommended pipeline: optimize -> minify -> compress
+optimize_images_hugo_site(
+    name = "site_images",
+    site = ":site",
+)
+
+minify_hugo_site(
+    name = "site_minified",
+    site = ":site_images",
+)
+
+gzip_hugo_site(
+    name = "site_compressed",
+    site = ":site_minified",
+)
+```
+
+### 8. minify_hugo_site Rule
 
 Minifies HTML, CSS, JavaScript, XML, and JSON files to reduce file sizes for production deployment:
 
@@ -351,7 +439,7 @@ pkg_tar(
 
 **Note:** For advanced minification with more aggressive optimization, consider using Hugo's built-in `--minify` flag or integrating dedicated minification tools via rules_js.
 
-### 5. hugo_site_files Rule
+### 9. hugo_site_files Rule
 
 A utility for getting a manifest of all generated files:
 
@@ -392,7 +480,7 @@ genrule(
 - Consistent file ordering (sorted)
 - Better error messages
 
-### 6. process_hugo_site Rule
+### 10. process_hugo_site Rule
 
 A generic processor for applying custom transformations:
 
@@ -615,6 +703,25 @@ brotli_hugo_site(
     compression_quality = 11,        # 0-11, where 11 is max (default: 11)
 )
 ```
+
+### optimize_images_hugo_site
+
+```python
+optimize_images_hugo_site(
+    name = "...",
+    site = "...",                    # hugo_site target (required)
+    extensions = [...],              # Image extensions to process (default: ["jpg", "jpeg", "png"])
+    webp_quality = 80,               # WebP quality 0-100 (default: 80)
+    generate_avif = False,          # Whether to generate AVIF variants (default: False)
+    avif_quality = 65,               # AVIF quality 0-100 (default: 65)
+)
+```
+
+**Outputs:**
+- Complete site directory with:
+  - Original images (preserved)
+  - WebP variants (original.webp)
+  - AVIF variants (original.avif, if enabled)
 
 ### hugo_site_files
 

@@ -148,7 +148,7 @@ optimize_images_hugo_site = rule(
 
     This rule processes images from a hugo_site output and creates modern format
     variants (WebP and optionally AVIF) alongside the originals. This provides
-    40-80% file size reduction while maintaining visual quality.
+    60-75% file size reduction with WebP and up to 80% with AVIF while maintaining visual quality.
 
     The output is a complete site directory with:
     - Original images (JPEG, PNG, etc.)

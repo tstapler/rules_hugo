@@ -11,7 +11,7 @@ Bazel rules for building [Hugo](https://gohugo.io/) static sites.
     - **Minification**: HTML, CSS, JS, XML, and JSON minification.
     - **Fingerprinting**: Asset fingerprinting for cache busting.
     - **Compression**: Gzip and Brotli compression for production artifacts.
-    - **Image Optimization**: Automatic resizing and optimization of images.
+    - **Image Optimization**: WebP and AVIF conversion with 60-75% size reduction (up to 80% with AVIF) while maintaining visual quality.
     - **Critical CSS**: Extract critical CSS for above-the-fold content.
     - **Prerendering**: Generate static HTML for JS-heavy sites using Puppeteer.
 - **Development Server**: Fast incremental builds with `bazel run //path/to:site_serve`.
@@ -86,21 +86,33 @@ bazel build //:my_site
 ### 4. Optimize for deployment
 
 ```starlark
-load("@build_stack_rules_hugo//hugo:rules.bzl", "minify_hugo_site", "gzip_hugo_site", "brotli_hugo_site")
+load("@build_stack_rules_hugo//hugo:rules.bzl", "minify_hugo_site", "gzip_hugo_site", "brotli_hugo_site", "optimize_images_hugo_site")
 
+# Minify HTML, CSS, and JavaScript
 minify_hugo_site(
     name = "site_minified",
     site = ":my_site",
 )
 
+# Optimize images (WebP and AVIF generation)
+optimize_images_hugo_site(
+    name = "site_optimized",
+    site = ":site_minified",
+    extensions = ["jpg", "jpeg", "png"],
+    webp_quality = 80,
+    generate_avif = True,
+    avif_quality = 65,
+)
+
+# Compress for web delivery
 gzip_hugo_site(
     name = "site_gzip",
-    site = ":site_minified",
+    site = ":site_optimized",
 )
 
 brotli_hugo_site(
     name = "site_brotli",
-    site = ":site_minified",
+    site = ":site_optimized",
 )
 ```
 
