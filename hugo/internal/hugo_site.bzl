@@ -257,11 +257,27 @@ hugo_site = rule(
 
 _SERVE_SCRIPT_PREFIX = """#!/usr/bin/env bash
 set -e
-echo "Starting Hugo development server..."
+
+# Determine server URL for user convenience
+SERVER_URL="http://localhost:1313"
+if [[ -n "${BASE_URL:-}" ]]; then
+    SERVER_URL="$BASE_URL"
+fi
+
+echo "🚀 Starting Hugo development server..."
+echo "🌐 Server will be available at: $SERVER_URL"
+echo "⭐ Enhanced hugo_serve with live reload and development features!"
+echo "⏹️  Press Ctrl+C to stop the server"
+echo ""
+
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 trap exit_gracefully SIGINT
 function exit_gracefully() {
+    echo ""
+    echo "✅ Hugo development server stopped."
+    echo "🌐 Server was running at: $SERVER_URL"
+    echo "🔄 Ready for live reload development!"
     exit 0;
 }
 
