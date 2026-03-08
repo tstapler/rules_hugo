@@ -327,11 +327,11 @@ def _hugo_serve_impl(ctx):
 
     executable_path = "./" + ctx.attr.hugo.files_to_run.executable.short_path
 
-    runfiles = ctx.runfiles()
-    runfiles = runfiles.merge(ctx.runfiles(files = [ctx.attr.hugo.files_to_run.executable]))
-
-    for dep in ctx.attr.dep:
-        runfiles = runfiles.merge(dep.default_runfiles).merge(dep.data_runfiles).merge(ctx.runfiles(files = dep.files.to_list()))
+    runfiles = ctx.runfiles(
+        files = [ctx.attr.hugo.files_to_run.executable],
+        transitive_files = depset(transitive = [dep.files for dep in ctx.attr.dep]),
+        targets = ctx.attr.dep,
+    )
 
     script = ctx.actions.declare_file("{}-serve".format(ctx.label.name))
     script_content = _SERVE_SCRIPT_PREFIX + _SERVE_SCRIPT_TEMPLATE.format(
