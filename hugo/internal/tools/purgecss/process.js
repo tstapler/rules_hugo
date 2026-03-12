@@ -127,12 +127,9 @@ async function processCSSFiles() {
     }
   });
 
-  let processed = 0;
-  let totalReduction = 0;
-
-  for (const cssFile of cssFiles) {
+  const results = await Promise.all(cssFiles.map(async (cssFile) => {
     try {
-      const css = fs.readFileSync(cssFile, 'utf8');
+      const css = await fs.promises.readFile(cssFile, 'utf8');
       const relativePath = path.relative(inputDir, cssFile);
       const outputPath = path.join(outputDir, relativePath);
 
@@ -147,10 +144,10 @@ async function processCSSFiles() {
       });
 
       // Ensure output directory exists
-      fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+      await fs.promises.mkdir(path.dirname(outputPath), { recursive: true });
 
       // Write processed CSS
-      fs.writeFileSync(outputPath, result.css);
+      await fs.promises.writeFile(outputPath, result.css);
 
       const newSize = result.css.length;
       const reduction = originalSize - newSize;
@@ -158,18 +155,29 @@ async function processCSSFiles() {
 
       console.log(`✓ Reduced: ${originalSize} → ${newSize} bytes (${percent}% reduction)`);
 
-      processed++;
-      totalReduction += reduction;
+      return { processed: 1, reduction };
 
     } catch (error) {
       console.error(`Error processing ${cssFile}:`, error.message);
       // Copy original file on error
       const relativePath = path.relative(inputDir, cssFile);
       const outputPath = path.join(outputDir, relativePath);
-      fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-      fs.copyFileSync(cssFile, outputPath);
-      console.log(`⚠️  Copied original file due to error`);
+      try {
+        await fs.promises.mkdir(path.dirname(outputPath), { recursive: true });
+        await fs.promises.copyFile(cssFile, outputPath);
+        console.log(`⚠️  Copied original file due to error`);
+      } catch (copyError) {
+        console.error(`Error copying original file ${cssFile}: ${copyError.message}`);
+      }
+      return { processed: 0, reduction: 0 };
     }
+  }));
+
+  let processed = 0;
+  let totalReduction = 0;
+  for (const res of results) {
+    processed += res.processed;
+    totalReduction += res.reduction;
   }
 
   const totalPercent = cssFiles.length > 0 ? ((totalReduction / cssFiles.reduce((sum, file) => sum + fs.statSync(file).size, 0)) * 100).toFixed(1) : 0;
