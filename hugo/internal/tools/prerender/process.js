@@ -6,7 +6,6 @@
 
 const fs = require('fs');
 const path = require('path');
-const puppeteer = require('puppeteer');
 
 // Parse command line arguments
 const args = process.argv.slice(2);
@@ -19,7 +18,20 @@ if (args.length < 3) {
 const inputDir = path.resolve(args[0]);
 const outputDir = path.resolve(args[1]);
 const baseUrl = args[2];
+
+// Validate baseUrl
+try {
+  const parsedUrl = new URL(baseUrl);
+  if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+    throw new Error('Only http: and https: protocols are allowed');
+  }
+} catch (error) {
+  console.error(`Error: Invalid base_url "${baseUrl}": ${error.message}`);
+  process.exit(1);
+}
+
 const options = args.slice(3);
+const puppeteer = require('puppeteer');
 
 // Parse options
 const prerenderOptions = {
