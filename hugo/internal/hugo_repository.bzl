@@ -11,14 +11,16 @@ def _hugo_repository_impl(repository_ctx):
         hugo = "hugo_extended"
 
     os_arch = repository_ctx.attr.os_arch
-
-    os_name = repository_ctx.os.name.lower()
-    if os_name.startswith("mac os"):
-        os_arch = "macOS-64bit"
-    elif os_name.find("windows") != -1:
-        os_arch = "Windows-64bit"
-    else:
-        os_arch = "Linux-64bit"
+    if not os_arch:
+        os_name = repository_ctx.os.name.lower()
+        arch = repository_ctx.os.arch
+        if os_name.startswith("mac os"):
+            # Hugo publishes no macOS tarball after 0.146 (only .pkg), so newer versions fail to download.
+            os_arch = "darwin-universal"
+        elif arch in ("aarch64", "arm64"):
+            os_arch = "linux-arm64"
+        else:
+            os_arch = "linux-amd64"
 
     url = "https://github.com/gohugoio/hugo/releases/download/v{version}/{hugo}_{version}_{os_arch}.tar.gz".format(
         hugo = hugo,
