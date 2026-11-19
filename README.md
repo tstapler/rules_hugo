@@ -28,9 +28,17 @@ hugo = use_extension("@build_stack_rules_hugo//hugo/internal:extensions.bzl", "h
 # Configure the Hugo toolchain
 hugo.hugo(
     name = "hugo",
-    version = "0.146.0",
+    version = "0.170.1",
     extended = True,  # Use extended version for Sass/SCSS support
 )
+
+# Other ways to obtain the binary (precedence: HUGO_BINARY env var > binary > use_system > from_source > url > release):
+#   binary = "/opt/hugo/bin/hugo",   # absolute path to a binary you provide
+#   use_system = True,               # the `hugo` on PATH
+#   from_source = True,              # `go build` the tagged source with the host Go (needs `go` on PATH);
+#                                    # set build_tags = ["withdeploy"] for deploy support. Works where no release
+#                                    # tarball exists (macOS >= 0.147). Set sha256 to pin the source archive.
+#   url = "https://mirror/{hugo}_{version}_{os_arch}.tar.gz",  # mirror for the release archive
 
 # Register a theme from GitHub
 hugo.github_theme(

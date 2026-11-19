@@ -9,6 +9,12 @@ def _hugo_extension_impl(ctx):
                 name = hugo_tag.name,
                 version = hugo_tag.version,
                 extended = hugo_tag.extended,
+                sha256 = hugo_tag.sha256,
+                from_source = hugo_tag.from_source,
+                binary = hugo_tag.binary,
+                use_system = hugo_tag.use_system,
+                url = hugo_tag.url,
+                build_tags = hugo_tag.build_tags,
             )
         for theme_tag in mod.tags.github_theme:
             github_hugo_theme(
@@ -33,6 +39,12 @@ hugo_extension = module_extension(
             "name": attr.string(mandatory = True),
             "version": attr.string(mandatory = True),
             "extended": attr.bool(default = True),
+            "sha256": attr.string(doc = "sha256 of the release tarball, or of the source archive when from_source is set"),
+            "from_source": attr.bool(default = False),
+            "binary": attr.string(doc = "Absolute path to a Hugo binary to use as-is"),
+            "use_system": attr.bool(default = False),
+            "url": attr.string(doc = "Archive URL template ({version}, {hugo}, {os_arch})"),
+            "build_tags": attr.string_list(),
         }),
         "github_theme": tag_class(attrs = {
             "name": attr.string(mandatory = True),
