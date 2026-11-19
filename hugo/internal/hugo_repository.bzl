@@ -53,13 +53,10 @@ def _build_from_source(repository_ctx):
             "GOMODCACHE": str(repository_ctx.path(".gomodcache")),
             # go.sum must verify every module; blank out host settings that would skip checksum verification.
             "GOFLAGS": "-mod=readonly",
-            "GOENV": "off",
             "GONOSUMDB": "",
-            "GONOSUMCHECK": "",
             "GOPRIVATE": "",
             "GOINSECURE": "",
             "GOSUMDB": "sum.golang.org",
-            "GOTELEMETRY": "off",
         },
         timeout = 1800,
     )
@@ -113,7 +110,7 @@ def _hugo_repository_impl(repository_ctx):
         if os_name.startswith("mac os"):
             # Hugo publishes no macOS tarball after 0.146 (only .pkg), so newer versions fail to download.
             os_arch = "darwin-universal"
-            if not repository_ctx.attr.url:
+            if not repository_ctx.attr.url and int(repository_ctx.attr.version.split(".")[1]) > 146:
                 print("NOTE: Hugo publishes no macOS tarball after 0.146; if the download 404s, set from_source = True or use_system = True")
         elif arch in ("aarch64", "arm64"):
             os_arch = "linux-arm64"
