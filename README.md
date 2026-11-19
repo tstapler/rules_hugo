@@ -32,7 +32,11 @@ hugo.hugo(
     extended = True,  # Use extended version for Sass/SCSS support
 )
 
-# Other ways to obtain the binary (precedence: HUGO_BINARY env var > binary > use_system > from_source > url > release):
+# Other ways to obtain the binary. binary, use_system and from_source are mutually exclusive, and url only
+# applies to release downloads (conflicts fail). The HUGO_BINARY env var overrides all of them, logs a notice,
+# and is not checked against sha256 or version. binary/use_system/HUGO_BINARY trust the host and are unverified.
+# from_source builds with GOFLAGS=-mod=readonly and the Go checksum database on; the result depends on the host
+# Go version. Set sha256 for url and from_source, otherwise the archive is unverified (a warning is printed).
 #   binary = "/opt/hugo/bin/hugo",   # absolute path to a binary you provide
 #   use_system = True,               # the `hugo` on PATH
 #   from_source = True,              # `go build` the tagged source with the host Go (needs `go` on PATH);

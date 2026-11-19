@@ -5,6 +5,28 @@ package(default_visibility = ["//visibility:public"])
 exports_files( ["hugo"] )
 """
 
+def _validate(repository_ctx):
+    """Fails fast on option combinations that would otherwise be silently ignored."""
+    a = repository_ctx.attr
+    version_parts = a.version.split(".")
+    if len(version_parts) != 3 or not all([p.isdigit() for p in version_parts]):
+        fail("hugo_repository: version must look like 0.170.1, got {!r}".format(a.version))
+    for tag in a.build_tags:
+        if not tag.replace("_", "").isalnum():
+            fail("hugo_repository: invalid build tag {!r}".format(tag))
+
+    modes = [n for n, on in [("binary", a.binary), ("use_system", a.use_system), ("from_source", a.from_source)] if on]
+    if len(modes) > 1:
+        fail("hugo_repository: {} are mutually exclusive".format(", ".join(modes)))
+    if a.url and modes:
+        fail("hugo_repository: url only applies to release downloads, not {}".format(modes[0]))
+    if a.build_tags and not a.from_source:
+        fail("hugo_repository: build_tags only applies with from_source = True")
+    if (a.binary or a.use_system) and a.sha256:
+        fail("hugo_repository: sha256 cannot be checked for a binary supplied by the host (binary/use_system)")
+    if (a.url or a.from_source) and not a.sha256:
+        print("WARNING: hugo_repository {} downloads {} without sha256; set sha256 to pin it".format(repository_ctx.name, "source" if a.from_source else "an archive from a mirror"))
+
 def _build_from_source(repository_ctx):
     """Compiles Hugo from the tagged source archive with the host's Go toolchain."""
     go = repository_ctx.which("go")
@@ -29,7 +51,15 @@ def _build_from_source(repository_ctx):
             "CGO_ENABLED": "0",
             "GOCACHE": str(repository_ctx.path(".gocache")),
             "GOMODCACHE": str(repository_ctx.path(".gomodcache")),
-            "GOFLAGS": "-mod=mod",
+            # go.sum must verify every module; blank out host settings that would skip checksum verification.
+            "GOFLAGS": "-mod=readonly",
+            "GOENV": "off",
+            "GONOSUMDB": "",
+            "GONOSUMCHECK": "",
+            "GOPRIVATE": "",
+            "GOINSECURE": "",
+            "GOSUMDB": "sum.golang.org",
+            "GOTELEMETRY": "off",
         },
         timeout = 1800,
     )
@@ -43,9 +73,11 @@ def _build_from_source(repository_ctx):
 
 def _use_local_binary(repository_ctx, path):
     """Exposes a Hugo binary that already exists on the host (not downloaded or built)."""
+    if not path.startswith("/"):
+        fail("hugo_repository: binary must be an absolute path, got {}".format(path))
     binary = repository_ctx.path(path)
-    if not binary.exists:
-        fail("hugo_repository: binary {} does not exist".format(path))
+    if not binary.exists or binary.is_dir:
+        fail("hugo_repository: binary {} does not exist or is a directory".format(path))
 
     # Re-run when the binary changes, otherwise Bazel would keep a stale symlink target's content cached.
     repository_ctx.watch(binary)
@@ -54,12 +86,15 @@ def _use_local_binary(repository_ctx, path):
 
 def _hugo_repository_impl(repository_ctx):
     # Precedence: env override > explicit binary > system PATH > build from source > custom url > GitHub release.
+    _validate(repository_ctx)
     override = repository_ctx.getenv("HUGO_BINARY")
     if override:
+        print("hugo_repository {}: using HUGO_BINARY={} (ignores version, sha256 and other sourcing options)".format(repository_ctx.name, override))
         return _use_local_binary(repository_ctx, override)
     if repository_ctx.attr.binary:
         return _use_local_binary(repository_ctx, repository_ctx.attr.binary)
     if repository_ctx.attr.use_system:
+        repository_ctx.getenv("PATH")  # re-resolve when PATH changes
         found = repository_ctx.which("hugo")
         if not found:
             fail("hugo_repository(use_system = True): `hugo` not found on PATH")
@@ -78,6 +113,8 @@ def _hugo_repository_impl(repository_ctx):
         if os_name.startswith("mac os"):
             # Hugo publishes no macOS tarball after 0.146 (only .pkg), so newer versions fail to download.
             os_arch = "darwin-universal"
+            if not repository_ctx.attr.url:
+                print("NOTE: Hugo publishes no macOS tarball after 0.146; if the download 404s, set from_source = True or use_system = True")
         elif arch in ("aarch64", "arm64"):
             os_arch = "linux-arm64"
         else:
@@ -121,7 +158,7 @@ hugo_repository = repository_rule(
             doc = "Use the `hugo` found on PATH.",
         ),
         "url": attr.string(
-            doc = "Archive URL template overriding the GitHub release (for mirrors); {version}, {hugo} and {os_arch} are substituted.",
+            doc = "Archive URL template overriding the GitHub release (for mirrors); {version}, {hugo} and {os_arch} are substituted, so avoid other braces.",
         ),
         "from_source": attr.bool(
             doc = "Build Hugo from the tagged source with the host Go toolchain instead of downloading a release binary. Needed on platforms without release tarballs (e.g. macOS >= 0.147).",
