@@ -155,6 +155,7 @@ def _hugo_site_impl(ctx):
         inputs = hugo_inputs,
         outputs = hugo_outputs,
         tools = [hugo],
+        env = ctx.attr.env,
         execution_requirements = {
             "no-sandbox": "1",
         },
@@ -236,6 +237,9 @@ hugo_site = rule(
         ),
         # Optionally set the base_url as a hugo argument
         "base_url": attr.string(),
+        "env": attr.string_dict(
+            doc = "Environment variables for the hugo action, e.g. {\"HUGO_ENV\": \"production\"}. Actions otherwise run with an empty environment, so templates calling getenv see nothing.",
+        ),
         "theme": attr.label(
             providers = [HugoThemeInfo],
         ),
